@@ -465,6 +465,22 @@
     height: 54px;
   }
 }
+.lyrics-static-notice {
+  position: sticky;       /* 固定在容器內部頂端 */
+  top: 0;
+  z-index: 2;
+  background: rgba(10,11,15,0.9);
+  backdrop-filter: blur(4px);
+  padding: 6px 0;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 6px;
+  opacity: 0.85;
+  border-bottom: 1px solid var(--border);
+}
+
   </style>
 </head>
 <body>
@@ -1329,7 +1345,22 @@ function renderPlainLyrics(text){
   const mobileEl  = document.getElementById('lyricsContentMobile');
   [desktopEl, mobileEl].forEach(el => {
     if (!el) return;
-    el.textContent = text || '（無歌詞）';
+    el.textContent = ''; // 清空舊內容
+
+    // ✅ 加入提示標籤
+    const notice = document.createElement('div');
+    notice.className = 'lyrics-static-notice';
+    notice.textContent = '靜態歌詞（無時間軸）';
+    el.appendChild(notice);
+
+    const lines = text.split(/\r?\n/);
+    lines.forEach(line => {
+      if (!line.trim()) return; // 避免完全空白行
+      const div = document.createElement('div');
+      div.className = 'lyrics-line';
+      div.textContent = line.trim();
+      el.appendChild(div);
+    });
   });
 }
 
@@ -1499,7 +1530,6 @@ function closeMobileSheet() {
   document.body.classList.remove('body-locked');
 }
 
-// 修復手勢滑動功能
 const playerEl = document.querySelector('.player');
 let touchStartY=0, touchStartX=0;
 
