@@ -1385,19 +1385,21 @@ clearLibraryBtn?.addEventListener('click', async () => {
   }
 });
 
-mobileSheetClose?.addEventListener('click', closeMobileSheet);
-mobileSheetBackdrop?.addEventListener('click', closeMobileSheet);
+if (mobileSheetClose) mobileSheetClose.addEventListener('click', closeMobileSheet);
+if (mobileSheetBackdrop) mobileSheetBackdrop.addEventListener('click', closeMobileSheet);
 
 // 加入左右滑偵測
 let startX = 0;
-mobileSlider?.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-mobileSlider?.addEventListener("touchend", e => {
-  const diff = e.changedTouches[0].clientX - startX;
-  if (Math.abs(diff) > 50) {
-    if (diff < 0 && currentPage === 0) openMobileSheet(1); // 左滑到清單
-    if (diff > 0 && currentPage === 1) openMobileSheet(0); // 右滑回歌詞
-  }
-});
+if (mobileSlider) {
+  mobileSlider.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+  mobileSlider.addEventListener("touchend", e => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) > 50) {
+      if (diff < 0 && currentPage === 0) openMobileSheet(1); // 左滑到清單
+      if (diff > 0 && currentPage === 1) openMobileSheet(0); // 右滑回歌詞
+    }
+  });
+}
 
 function syncMobileTransportState() {
   // 播放鍵圖示同步
@@ -1414,26 +1416,33 @@ function syncMobileTransportState() {
 }
 
 // 綁定手機控制按鈕
-prevBtnMobile?.addEventListener('click', () => { 
-  playPrevious();  
-  syncMobileTransportState(); 
-});
+if (prevBtnMobile) {
+  prevBtnMobile.addEventListener('click', () => {
+    playPrevious();
+    syncMobileTransportState();
+  });
+}
 
+if (nextBtnMobile) {
+  nextBtnMobile.addEventListener('click', () => {
+    playNext();
+    syncMobileTransportState();
+  });
+}
 
-nextBtnMobile?.addEventListener('click', () => { 
-  playNext();  
-  syncMobileTransportState(); 
-});
+if (shuffleBtnMobile) {
+  shuffleBtnMobile.addEventListener('click', () => {
+    shuffleBtn.click();
+    syncMobileTransportState();
+  });
+}
 
-shuffleBtnMobile?.addEventListener('click', () => { 
-  shuffleBtn.click(); 
-  syncMobileTransportState(); 
-});
-
-repeatBtnMobile?.addEventListener('click', () => { 
-  repeatBtn.click();  
-  syncMobileTransportState(); 
-});
+if (repeatBtnMobile) {
+  repeatBtnMobile.addEventListener('click', () => {
+    repeatBtn.click();
+    syncMobileTransportState();
+  });
+}
 
 // 當播放狀態改變時也同步一次
 audio.addEventListener('play',  syncMobileTransportState);
@@ -1873,7 +1882,7 @@ const handleFiles = files => {
         const s = JSON.parse(raw);
         isShuffleMode = !!s.shuffle;
         repeatMode = Number.isInteger(s.repeatMode) ? s.repeatMode : (s.repeat ? 1 : 0); // 舊版相容
-        savedVolume = s.volume ?? 0.7;
+        savedVolume = typeof s.volume === 'number' ? s.volume : 0.7;
         audio.volume = savedVolume;
         volumeSlider.value = savedVolume;
         const storedRate = parseFloat(s.playbackRate);
@@ -1907,7 +1916,8 @@ const handleFiles = files => {
             };
           });
           updatePlaylistUI();
-          currentTrackIndex = Math.min(s.currentTrackIndex ?? 0, currentPlaylist.length - 1);
+          const storedIndex = typeof s.currentTrackIndex === 'number' ? s.currentTrackIndex : 0;
+          currentTrackIndex = Math.min(storedIndex, currentPlaylist.length - 1);
           
           // 如果有保存的播放位置，自動播放
           if (currentTrackIndex >= 0 && currentTrackIndex < currentPlaylist.length) {
@@ -2067,22 +2077,24 @@ fileInput.addEventListener('change', e => {
     window.addEventListener('beforeunload',cleanup);
     initialize();
     
-    // 修復手機播放按鈕
-playBtnMobile?.addEventListener('click', () => {
-  if (currentPlaylist.length === 0) {
-    showNotification('請先添加音樂','warning');
-    return;
-  }
+// 修復手機播放按鈕
+if (playBtnMobile) {
+  playBtnMobile.addEventListener('click', () => {
+    if (currentPlaylist.length === 0) {
+      showNotification('請先添加音樂','warning');
+      return;
+    }
 
-  // 如果還沒選歌 → 直接播放第一首
-  if (currentTrackIndex === -1) {
-    playTrack(0);
-  } else {
-    togglePlayPause();
-  }
+    // 如果還沒選歌 → 直接播放第一首
+    if (currentTrackIndex === -1) {
+      playTrack(0);
+    } else {
+      togglePlayPause();
+    }
 
-  syncMobileTransportState();
-});
+    syncMobileTransportState();
+  });
+}
     
     // 改善的歌詞處理功能
     function setLyricsLoading(){
@@ -2259,11 +2271,14 @@ function updateLyricsHighlight(current) {
     };
     audio.addEventListener('error',()=>{
       let msg='播放出現錯誤';
-      switch(audio.error?.code){
-        case audio.error?.MEDIA_ERR_ABORTED:msg='播放被中止';break;
-        case audio.error?.MEDIA_ERR_NETWORK:msg='網絡錯誤';break;
-        case audio.error?.MEDIA_ERR_DECODE:msg='解碼錯誤';break;
-        case audio.error?.MEDIA_ERR_SRC_NOT_SUPPORTED:msg='不支持的音頻格式';break;
+      const err = audio.error || null;
+      const code = err && typeof err.code === 'number' ? err.code : null;
+      const mediaErr = (typeof MediaError !== 'undefined' && MediaError) || err || {};
+      switch(code){
+        case mediaErr.MEDIA_ERR_ABORTED:msg='播放被中止';break;
+        case mediaErr.MEDIA_ERR_NETWORK:msg='網絡錯誤';break;
+        case mediaErr.MEDIA_ERR_DECODE:msg='解碼錯誤';break;
+        case mediaErr.MEDIA_ERR_SRC_NOT_SUPPORTED:msg='不支持的音頻格式';break;
       }
       showNotification(msg,'error');
       setTimeout(()=>{
