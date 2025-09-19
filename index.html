@@ -1220,30 +1220,30 @@
   (()=>{
     'use strict';
       // ===== 在這裡把 mirrorQueueToMobile 定義進來 =====
-  function mirrorQueueToMobile() {
-    const src = document.getElementById('playlist');
-    const dst = document.getElementById('playlistMobile');
-    if (!src || !dst) return;
-    dst.innerHTML = src.innerHTML;
-    dst.querySelectorAll('.playlist-item').forEach(item => {
-      item.addEventListener('click', e => {
-        if (e.target.closest('.action-btn')) return;
+function mirrorQueueToMobile() {
+  const src = document.getElementById('playlist');
+  const dst = document.getElementById('playlistMobile');
+  if (!src || !dst) return;
+  dst.innerHTML = src.innerHTML;
+  dst.querySelectorAll('.playlist-item').forEach(item => {
+    item.addEventListener('click', e => {
+      if (e.target.closest('.action-btn')) return;
+      const idx = parseInt(item.dataset.index, 10);
+      if (!Number.isNaN(idx)) {
+        playTrack(idx);
+        syncMobileTransportState();
+      }
+    });
+    item.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
         const idx = parseInt(item.dataset.index, 10);
-        if (!Number.isNaN(idx)) {
-          playTrack(idx);
-          syncMobileTransportState();
-        }
+        performPlaylistAction(btn.dataset.action, idx);
       });
-      item.querySelectorAll('.action-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          const idx = parseInt(item.dataset.index, 10);
-          performPlaylistAction(btn.dataset.action, idx);
-        });
-      });
-      dst.querySelector('[data-action="open-upload"]')?.addEventListener('click', () => fileInput?.click());
-    }
-  }
+    });
+  });
+  dst.querySelector('[data-action="open-upload"]')?.addEventListener('click', () => fileInput?.click());
+}
     const $=id=>document.getElementById(id);
     const mqMobile = window.matchMedia('(max-width: 768px)');
     const lyricsToggleBtn = document.getElementById('lyricsToggleBtn');
