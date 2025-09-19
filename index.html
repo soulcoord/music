@@ -22,9 +22,9 @@
 }
 .player{
   width:100%;
-  display:grid;
-  grid-template-columns: 1.1fr 1fr; /* 你的新比例 */
-  gap:36px;
+  display:flex;
+  flex-direction:column;
+  gap:28px;
   background:linear-gradient(180deg,rgba(21,25,35,0.92),rgba(21,25,35,0.92));
   border:1px solid var(--border);
   border-radius:20px;
@@ -32,9 +32,24 @@
   box-shadow:var(--shadow-lg);
   position:relative;
   overflow:hidden;
-  padding:36px;
+  padding:32px 36px 36px;
   transition: background-image .6s ease, opacity .6s ease, filter .6s ease;
 }
+.player-body{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:36px;align-items:start;}
+.player-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:4px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.player-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:1rem;color:var(--text-2);letter-spacing:.6px;text-transform:uppercase;}
+.player-brand i{color:var(--brand-2);font-size:1.1rem;}
+.header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+.icon-button{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--text-2);font-size:.85rem;font-weight:500;cursor:pointer;transition:all .2s ease;}
+.icon-button .btn-label{white-space:nowrap;}
+.icon-button i{font-size:0.95rem;}
+.icon-button:hover{background:rgba(255,255,255,0.07);transform:translateY(-1px);}
+.icon-button:active{transform:translateY(0) scale(.98);}
+.icon-button.secondary{background:transparent;color:var(--muted);}
+.icon-button.secondary:hover{color:var(--text-2);}
+.icon-button.active{border-color:var(--border-2);background:rgba(255,255,255,0.08);color:var(--text);}
+.icon-button.danger{color:var(--danger);border-color:rgba(255,107,107,0.35);background:rgba(255,107,107,0.08);}
+.icon-button.danger:hover{background:rgba(255,107,107,0.12);color:var(--danger);}
     .player::before{content:"";position:absolute;inset:0;border-radius:20px;padding:1px;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,0.08),transparent 40%,rgba(255,255,255,0.06));mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:xor}
     .cover-container{position:relative;width:320px;height:320px}
     .cover{width:100%;height:100%;border-radius:16px;background:var(--bg-2) center/cover no-repeat;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,0.45);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
@@ -73,6 +88,7 @@
     .upload-btn:active{transform:translateY(0) scale(.98)}
     .drop-zone{flex:1;min-width:280px;padding:14px 16px;border:1.5px dashed var(--border);border-radius:12px;color:var(--muted);background:rgba(255,255,255,.02);text-align:center;transition:all .2s ease;cursor:pointer}
     .drop-zone.dragover{border-color:var(--brand-2);background:rgba(255,255,255,.04);color:var(--text);transform:scale(1.01)}
+    .upload-hint{font-size:.82rem;color:var(--muted);text-align:center;margin-top:6px;}
     .lyrics{border:1px solid var(--border);background:rgba(255,255,255,.03);border-radius:14px;overflow:hidden;transition:all .3s ease}
     .lyrics-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid var(--border);background:#161b25}
     .lyrics-header h3{font-size:.95rem;font-weight:700;margin:0;display:flex;align-items:center;gap:6px}
@@ -91,6 +107,11 @@
     .playlist::-webkit-scrollbar{width:6px}
     .playlist::-webkit-scrollbar-track{background:transparent}
     .playlist::-webkit-scrollbar-thumb{background:#5c6675;border-radius:999px}
+    .playlist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:40px 20px;color:var(--muted);}
+    .playlist-empty i{font-size:24px;color:var(--brand-2);}
+    .playlist-empty button{margin-top:4px;padding:8px 14px;border-radius:10px;border:1px solid var(--border-2);background:rgba(255,255,255,0.06);color:var(--text);font-weight:500;cursor:pointer;transition:all .2s ease;}
+    .playlist-empty button:hover{background:rgba(255,255,255,0.1);transform:translateY(-1px);}
+    .playlist-empty button:active{transform:translateY(0) scale(.98);}
     .playlist-item{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;padding:12px 14px;cursor:pointer;transition:all .2s ease;border-bottom:1px solid rgba(255,255,255,.05)}
     .playlist-item:hover{background:rgba(255,255,255,.04);transform:translateX(2px)}
     .playlist-item.active{background:rgba(255,255,255,.06);border-left:3px solid #9aa4b2;padding-left:11px}
@@ -114,8 +135,23 @@
     .mini-btn:hover{background:var(--surface-2);transform:translateY(-1px)}
     .mini-btn:active{transform:translateY(0) scale(.98)}
     .notifications{position:fixed;top:16px;right:16px;display:flex;flex-direction:column;gap:10px;z-index:200;max-width:80vw}
+    .mobile-quick-actions{display:none}
     .notification{padding:14px 16px;border-radius:12px;background:rgba(0,0,0,.9);border:1px solid var(--border);color:var(--text);backdrop-filter:blur(12px);transform:translateX(100%);opacity:0;animation:in .28s ease forwards;max-width:100%;word-break:break-word}
     .notification.fade-out{animation:out .22s ease forwards}
+    .mobile-sheet-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);opacity:0;pointer-events:none;transition:opacity .25s ease;z-index:350}
+    .mobile-sheet-backdrop.show{opacity:1;pointer-events:auto}
+    .mobile-sheet{position:fixed;left:0;right:0;bottom:0;background:rgba(10,11,15,0.98);border-radius:20px 20px 0 0;box-shadow:0 -24px 60px rgba(0,0,0,0.6);transform:translateY(100%);transition:transform .28s ease;z-index:400;display:flex;flex-direction:column;max-height:85vh;overflow:hidden;padding-bottom:calc(env(safe-area-inset-bottom,0)+16px)}
+    .mobile-sheet.show{transform:translateY(0)}
+    .mobile-sheet[hidden]{display:none}
+    .mobile-sheet__header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+    .mobile-sheet__title{font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+    .mobile-sheet__close{border:none;background:rgba(255,255,255,0.06);color:var(--text);width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s ease}
+    .mobile-sheet__close:hover{background:rgba(255,255,255,0.1)}
+    .mobile-sheet__slider{display:flex;width:200%;transition:transform .3s ease;will-change:transform}
+    .mobile-sheet__page{flex:0 0 100%;padding:0 20px 20px;overflow-y:auto;max-height:calc(85vh - 70px - env(safe-area-inset-bottom,0))}
+    .mobile-sheet__page .lyrics-content{max-height:none;height:auto;padding:0}
+    .mobile-sheet__page .playlist{max-height:none;height:auto;padding:12px 0}
+    body.body-locked{overflow:hidden}
     .art-blur {
       background-image: url(...);
       background-size: cover;
@@ -126,19 +162,31 @@
     @keyframes in{to{transform:translateX(0);opacity:1}}
     @keyframes out{to{transform:translateX(100%);opacity:0}}
     :focus-visible{outline:2px solid var(--brand-2);outline-offset:2px;border-radius:10px}
-    @media (max-width:1024px){.player{grid-template-columns:1fr;gap:26px;padding:28px}.cover-container{width:280px;height:280px}}
-    @media (max-width: 768px) {
-  .player { grid-template-columns: 1fr; padding: 16px; gap: 20px; }
-  .cover-container { width: 200px; height: 200px; }
-}
-@media (max-width: 768px) {
-  #playlistMobile {
-    max-height: none;
-    height: calc(100vh - 120px);
-    overflow-y: auto;
-  }
-}
-    @media (max-width: 480px) {
+    @media (max-width:1024px){
+      .player{padding:28px;}
+      .player-body{grid-template-columns:1fr;gap:28px;}
+      .context-card{min-height:360px;}
+      .cover-container{width:280px;height:280px}
+    }
+    @media (max-width:768px){
+      .player{padding:22px 18px 26px;gap:20px;}
+      .player-body{gap:20px;}
+      .player-header{padding-bottom:0;border-bottom:none;}
+      .player-brand{font-size:.92rem;}
+      .header-actions{gap:8px;flex-wrap:nowrap;}
+      .icon-button{padding:10px;border-radius:14px;}
+      .icon-button .btn-label{display:none;}
+      .icon-button i{font-size:1rem;}
+      .context-card{display:none;}
+      .left-pane{gap:12px;}
+      .track-title-compact{font-size:20px;}
+      .track-artist-compact{font-size:13px;}
+      .cover-container{width:200px;height:200px}
+      .mobile-quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+      .mobile-quick-actions button{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--text);font-weight:600;}
+      .mobile-quick-actions button:hover{background:rgba(255,255,255,0.08);}
+    }
+@media (max-width: 480px) {
   .control-btn { width: 44px; height: 44px; margin: 0 6px; }
   .controls { gap: 12px; padding: 6px 0; }
 }
@@ -159,11 +207,23 @@
   grid-template-columns: 1.1fr 1fr; /* 左稍寬，便於顯示多行歌詞 */
   gap: 36px;
 }
-/* 左欄 */
-.left-pane{display:flex;flex-direction:column;min-width:0;}
-.track-head{margin-bottom:12px;}
+/* 左側資訊卡 */
+.left-pane{display:flex;flex-direction:column;gap:20px;min-width:0;}
+.track-head{display:flex;flex-direction:column;gap:4px;margin-bottom:4px;}
 .track-title-compact{font-weight:700;font-size:22px;letter-spacing:.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .track-artist-compact{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.context-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,0.03);overflow:hidden;min-height:420px;}
+.context-tabs{display:flex;gap:8px;padding:10px;background:rgba(15,18,26,0.85);border-bottom:1px solid rgba(255,255,255,0.06);}
+.context-tab{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--muted);font-weight:600;font-size:.9rem;cursor:pointer;transition:all .2s ease;}
+.context-tab i{font-size:.95rem;}
+.context-tab:hover{color:var(--text);}
+.context-tab.active{background:rgba(255,255,255,0.08);border-color:var(--border-2);color:var(--text);box-shadow:0 6px 18px rgba(0,0,0,0.28);}
+.context-panels{position:relative;flex:1;min-height:0;}
+.context-panel{display:none;height:100%;}
+.context-panel.active{display:block;}
+.context-panel .lyrics-fixed{border:none;border-radius:0;background:transparent;min-height:inherit;max-height:inherit;}
+.context-panel .lyrics-content{max-height:inherit;height:100%;padding:18px;}
+.context-panel .playlist{border:none;border-radius:0;background:transparent;height:100%;padding:12px 0;}
 .lyrics-fixed{
   border:1px solid var(--border);
   background:rgba(255,255,255,.03);
@@ -179,7 +239,7 @@
 .lyrics-line{padding:4px 8px;border-radius:8px;color:var(--muted);line-height:1.6;}
 .lyrics-line.active{background:rgba(255,255,255,.10);color:var(--text);font-weight:500}
 /* 右欄 */
-.right-pane{display:flex;flex-direction:column;gap:14px;align-items:stretch}
+.right-pane{display:flex;flex-direction:column;gap:16px;align-items:stretch}
 /* 黑膠唱盤 */
 .turntable{display:flex;justify-content:center;align-items:center;padding-top:6px;padding-bottom:8px}
 .record-wrap{position:relative;width:320px;height:320px}
@@ -226,36 +286,6 @@
 /* 音量列窄化 */
 .volume-row{display:flex;align-items:center;gap:10px;justify-content:center}
 .volume-slider{width:220px}
-/* RWD 調整：中小尺寸時改成上下排列 */
-@media (max-width:1024px){
-  .player{grid-template-columns:1fr}
-  .record-wrap{width:280px;height:280px}
-  .lyrics-fixed{max-height:360px}
-}
-@media (max-width:768px){
-  .record-wrap{width:220px;height:220px}
-}
-
-@media (max-width: 768px){
-  /* 1) 只留唱盤 + 進度 + 大按鈕；收起歌詞到面板、清單到抽屜 */
-  .left-pane{ display:none; }                /* 隱藏桌機歌詞欄 */
-  .volume-row{ display:none; }               /* 手機隱藏音量滑桿 */
-  .controls.slim{ gap:14px; }                /* 手機控制列更好點 */
-  .control-btn.primary{ width:72px; height:72px; font-size:22px; }
-  .control-btn.ghost{ width:56px; height:56px; font-size:18px; }
-  .control-icon{ width:44px; height:44px; }
-  .record-wrap{ width:240px; height:240px; }
-  .progress-row.compact{ grid-template-columns:56px 1fr 56px; }
-  /* 播放清單區（桌機在右欄內），手機主要用抽屜 */
-  .right-pane > .playlist{ display:none; }
-}
-/* 微互動：按鈕在手機時擴大可點區 */
-@media (max-width: 480px){
-  .control-btn.primary{ width:76px; height:76px; }
-  .control-btn.ghost{ width:60px; height:60px; }
-}
-/* 滾動時避免 body 跟著捲動 */
-.body-locked{ overflow:hidden; touch-action:none; }
 /* 桌機控制列 */
 .desktop-controls {
   display: flex;
@@ -282,158 +312,6 @@
 @media (max-width: 768px) {
   .desktop-controls { display: none; }
   .mobile-controls { display: flex; }
-}
-
-
-
-.sheet-body.slider > .panel {
-  width: 100%;
-  flex-shrink: 0;
-  overflow: auto;
-}
-#playlistMobile {
-  min-height: 200px; /* 確保有空間顯示 */
-}
-
-/* 修正手機浮動工具列位置 */
-.mobile-toolbar {
-  position: fixed;
-  bottom: 160px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  z-index: 999;
-}
-#mobileSlider {
-  transform: translateX(0);
-}
-.mobile-toolbar button {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 999px;
-  padding: 0.75rem 1.25rem;
-  font-size: 1.25rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-.sheet {
-  display: flex;
-  flex-direction: column;
-}
-
-.sheet .mobile-page {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-}
-
-.sheet .mobile-page .playlist,
-.sheet .mobile-page .lyrics-content {
-  flex: 1;
-  overflow-y: auto;
-}
-
-#mobileSlider {
-  transform: translateX(0);
-}
-.sheet.show {
-  bottom: 0;
-  transition: bottom .28s ease;
-}
-.mobile-tabs {
-  display: none;
-  justify-content: space-around;
-  padding: 10px;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-}
-.mobile-tabs button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-size: 1rem;
-}
-@media (max-width: 768px) {
-  .mobile-tabs { display: flex; }
-}
-
-.mobile-page {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-.mobile-page .playlist,
-.mobile-page .lyrics-content {
-  flex: 1;
-  overflow-y: auto;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-}
-.page-header h3 {
-  flex: 1;
-  text-align: center;
-  margin: 0;
-}
-.back-btn {
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-size: 1.25rem;
-}
-.mobile-page[hidden] { display: none; }
-
-  .page-header {
-    position: sticky;
-    top: 0;
-    z-index: 1;
-    background: var(--surface);
-  }
-
-  #playlistMobile {
-    max-height: none !important;
-    height: 100% !important;
-  }
-@media (max-width: 768px) {
-  .mobile-page {
-    position: fixed;
-    inset: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0) 0;
-    height: calc(
-      100dvh - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0)
-    );
-    display: flex;
-    flex-direction: column;
-    border-radius: 16px 16px 0 0;
-    background: rgba(10, 11, 15, .98);
-    overflow: hidden;
-    z-index: 400;
-  }
-
-  .mobile-page .page-header {
-    flex: 0 0 54px;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-
-  .mobile-page .lyrics-content,
-  .mobile-page .playlist {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 0 14px;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0));
-  }
 }
 .lyrics-content {
   max-height: 580px !important;
@@ -487,78 +365,91 @@
   <div class="bg-art" id="bgArt" aria-hidden="true"></div>
   <div class="wrap" id="dropzone">
 <div class="player" role="region" aria-label="單色音樂播放器">
-  <!-- 左欄：標題 + 歌詞 -->
-  <section class="left-pane">
-    <header class="track-head">
-      <div class="track-title-compact" id="trackTitle">請選擇歌曲</div>
-      <div class="track-artist-compact" id="trackArtist">上傳 MP3 或拖放檔案進來</div>
-    </header>
-    <div class="lyrics-fixed">
-      <div class="lyrics-content" id="lyricsContent"><span class="lyrics-empty">尚未載入歌詞</span></div>
+  <header class="player-header">
+    <div class="player-brand"><i class="fa-solid fa-waveform-lines"></i> Monochrome Player</div>
+    <div class="header-actions">
+      <button class="icon-button secondary" type="button" id="lyricsToggleBtn" aria-controls="lyricsPanel" aria-label="切換歌詞面板"><i class="fa-solid fa-microphone-lines"></i><span class="btn-label"> 歌詞面板</span></button>
+      <button class="icon-button secondary" type="button" id="queueToggleBtn" aria-controls="queuePanel" aria-label="切換播放清單"><i class="fa-solid fa-list-music"></i><span class="btn-label"> 播放清單</span></button>
+      <button class="icon-button danger" type="button" id="clearLibraryBtn" aria-label="清空播放清單"><i class="fa-solid fa-broom"></i><span class="btn-label"> 清空播放</span></button>
     </div>
-  </section>
-  <!-- 右欄：黑膠 + 進度 + 控制列 + 上傳 + 播放清單 -->
-  <section class="right-pane">
-    <div class="turntable">
-      <div class="record-wrap">
-        <!-- 原 albumCover 改成黑膠與唱片標貼 -->
-        <div class="record" id="vinyl">
-          <div class="record-groove"></div>
-          <div class="record-label" id="albumCover"></div>
+  </header>
+  <div class="player-body">
+    <section class="left-pane" aria-label="歌詞與播放清單">
+      <header class="track-head">
+        <div class="track-title-compact" id="trackTitle">請選擇歌曲</div>
+        <div class="track-artist-compact" id="trackArtist">上傳 MP3 或拖放檔案進來</div>
+      </header>
+      <div class="context-card">
+        <div class="context-tabs" role="tablist" aria-label="內容切換">
+          <button class="context-tab active" type="button" id="lyricsTabBtn" role="tab" aria-selected="true" aria-controls="lyricsPanel"><i class="fa-solid fa-microphone-lines"></i> 歌詞</button>
+          <button class="context-tab" type="button" id="queueTabBtn" role="tab" aria-selected="false" aria-controls="queuePanel"><i class="fa-solid fa-list"></i> 清單</button>
         </div>
-        <div class="status-badge" id="statusBadge"><i class="fa-solid fa-circle" style="font-size:6px"></i> 待機中</div>
+        <div class="context-panels">
+          <div class="context-panel active" id="lyricsPanel" role="tabpanel" aria-labelledby="lyricsTabBtn">
+            <div class="lyrics-fixed">
+              <div class="lyrics-content" id="lyricsContent"><span class="lyrics-empty">尚未載入歌詞</span></div>
+            </div>
+          </div>
+          <div class="context-panel" id="queuePanel" role="tabpanel" aria-labelledby="queueTabBtn" aria-hidden="true">
+            <div class="playlist" id="playlist" aria-label="播放清單"></div>
+          </div>
+        </div>
       </div>
-    </div>
-    <!-- 進度條（置於唱盤下） -->
-    <div class="progress-row compact">
-      <div class="time" id="currentTime">0:00</div>
-      <div class="progress-bar" id="progressBar" role="slider" aria-label="播放進度"
-           aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-        <div class="progress-fill" id="progressFill"></div>
-        <div class="progress-thumb" id="progressThumb"></div>
-        <div class="progress-tooltip" id="progressTooltip">0:00</div>
+    </section>
+    <section class="right-pane" aria-label="播放控制與唱片">
+      <div class="turntable">
+        <div class="record-wrap">
+          <div class="record" id="vinyl">
+            <div class="record-groove"></div>
+            <div class="record-label" id="albumCover"></div>
+          </div>
+          <div class="status-badge" id="statusBadge"><i class="fa-solid fa-circle" style="font-size:6px"></i> 待機中</div>
+        </div>
       </div>
-      <div class="time" id="totalTime">0:00</div>
-    </div>
-    <!-- 控制列（精簡圓鈕） -->
-<!-- 桌機：主控制三鍵 + 工具列 -->
-<div class="controls desktop-controls" aria-label="播放控制">
-  <div class="main-controls">
-    <button class="control-btn ghost" id="prevBtn" title="上一首 (P)"><i class="fa-solid fa-backward-step"></i></button>
-    <button class="control-btn primary" id="playBtn" aria-pressed="false" title="播放/暫停 (空格)"><i class="fa-solid fa-play"></i></button>
-    <button class="control-btn ghost" id="nextBtn" title="下一首 (N)"><i class="fa-solid fa-forward-step"></i></button>
+      <div class="progress-row compact">
+        <div class="time" id="currentTime">0:00</div>
+        <div class="progress-bar" id="progressBar" role="slider" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="progress-fill" id="progressFill"></div>
+          <div class="progress-thumb" id="progressThumb"></div>
+          <div class="progress-tooltip" id="progressTooltip">0:00</div>
+        </div>
+        <div class="time" id="totalTime">0:00</div>
+      </div>
+      <div class="controls desktop-controls" aria-label="播放控制">
+        <div class="main-controls">
+          <button class="control-btn ghost" id="prevBtn" title="上一首 (P)"><i class="fa-solid fa-backward-step"></i></button>
+          <button class="control-btn primary" id="playBtn" aria-pressed="false" title="播放/暫停 (空格)"><i class="fa-solid fa-play"></i></button>
+          <button class="control-btn ghost" id="nextBtn" title="下一首 (N)"><i class="fa-solid fa-forward-step"></i></button>
+        </div>
+        <div class="tool-controls">
+          <button class="control-icon" id="shuffleBtn" aria-pressed="false" title="隨機 (S)"><i class="fa-solid fa-shuffle"></i></button>
+          <button class="control-icon" id="repeatBtn" aria-pressed="false" title="循環 (R)"><i class="fa-solid fa-repeat"></i></button>
+        </div>
+      </div>
+      <div class="controls mobile-controls" aria-label="播放控制">
+        <button class="control-icon" id="shuffleBtnMobile" title="隨機"><i class="fa-solid fa-shuffle"></i></button>
+        <button class="control-btn ghost" id="prevBtnMobile" title="上一首"><i class="fa-solid fa-backward-step"></i></button>
+        <button class="control-btn primary" id="playBtnMobile" aria-pressed="false" title="播放/暫停"><i class="fa-solid fa-play"></i></button>
+        <button class="control-btn ghost" id="nextBtnMobile" title="下一首"><i class="fa-solid fa-forward-step"></i></button>
+        <button class="control-icon" id="repeatBtnMobile" title="循環"><i class="fa-solid fa-repeat"></i></button>
+      </div>
+      <div class="mobile-quick-actions" aria-label="快速開啟面板">
+        <button type="button" id="lyricsToggleBtnMobile"><i class="fa-solid fa-microphone-lines"></i><span> 歌詞</span></button>
+        <button type="button" id="queueToggleBtnMobile"><i class="fa-solid fa-list"></i><span> 清單</span></button>
+      </div>
+      <div class="volume-row">
+        <i class="fa-solid fa-volume-high volume-icon" id="volumeIcon" title="靜音 (M)"></i>
+        <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7" aria-label="音量調整" />
+      </div>
+      <div class="upload-section">
+        <label class="upload-btn" for="fileInput"><i class="fa-solid fa-upload"></i> 上傳歌曲</label>
+        <div class="drop-zone" id="dropZone" role="button" tabindex="0">或將檔案拖放到此處（支援多檔）</div>
+      </div>
+      <p class="upload-hint">拖放檔案即可建立播放清單，系統會自動保存於此裝置。</p>
+    </section>
   </div>
-  <div class="tool-controls">
-    <button class="control-icon" id="shuffleBtn" aria-pressed="false" title="隨機 (S)"><i class="fa-solid fa-shuffle"></i></button>
-    <button class="control-icon" id="repeatBtn" aria-pressed="false" title="循環 (R)"><i class="fa-solid fa-repeat"></i></button>
-  </div>
 </div>
-<!-- 手機：五鍵橫排 -->
-<div class="controls mobile-controls" aria-label="播放控制">
-  <button class="control-icon" id="shuffleBtnMobile" title="隨機"><i class="fa-solid fa-shuffle"></i></button>
-  <button class="control-btn ghost" id="prevBtnMobile" title="上一首"><i class="fa-solid fa-backward-step"></i></button>
-  <button class="control-btn primary" id="playBtnMobile" aria-pressed="false" title="播放/暫停"><i class="fa-solid fa-play"></i></button>
-  <button class="control-btn ghost" id="nextBtnMobile" title="下一首"><i class="fa-solid fa-forward-step"></i></button>
-  <button class="control-icon" id="repeatBtnMobile" title="循環"><i class="fa-solid fa-repeat"></i></button>
-</div>
-    <!-- 音量 -->
-    <div class="volume-row">
-      <i class="fa-solid fa-volume-high volume-icon" id="volumeIcon" title="靜音 (M)"></i>
-      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7" aria-label="音量調整" />
-    </div>
-    <!-- 上傳與清單 -->
-    <div class="upload-section">
-      <label class="upload-btn" for="fileInput"><i class="fa-solid fa-upload"></i> 上傳歌曲</label>
-      <div class="drop-zone" id="dropZone" role="button" tabindex="0">或將檔案拖放到此處（支援多檔）</div>
-    </div>
-    <div class="playlist" id="playlist" aria-label="播放清單"></div>
-    <div class="mobile-tabs">
-  <button id="lyricsTabBtn"><i class="fa-solid fa-microphone-lines"></i> 歌詞</button>
-  <button id="queueTabBtn"><i class="fa-solid fa-list"></i> 清單</button>
-</div>
-  </section>
-
-  <div class="mini-player" id="miniPlayer">
+<div class="mini-player" id="miniPlayer">
     <div class="mini-cover" id="miniCover"></div>
     <div class="mini-info">
       <div class="mini-title" id="miniTitle">—</div>
@@ -640,6 +531,7 @@
           }
         });
       });
+      dst.querySelector('[data-action="open-upload"]')?.addEventListener('click', () => fileInput?.click());
     }
   }
     const $=id=>document.getElementById(id);
@@ -648,20 +540,50 @@
     const queueToggleBtn   = document.getElementById('queueToggleBtn');
     const lyricsToggleBtnMobile = document.getElementById('lyricsToggleBtnMobile');
     const queueToggleBtnMobile = document.getElementById('queueToggleBtnMobile');
-    
+    const clearLibraryBtn = document.getElementById('clearLibraryBtn');
+    const lyricsTabBtn = document.getElementById('lyricsTabBtn');
+    const queueTabBtn = document.getElementById('queueTabBtn');
+    const contextPanels = {
+      lyrics: document.getElementById('lyricsPanel'),
+      queue: document.getElementById('queuePanel')
+    };
+    const contextTabMap = { lyrics: lyricsTabBtn, queue: queueTabBtn };
+    const headerButtonMap = { lyrics: lyricsToggleBtn, queue: queueToggleBtn };
+    let activePanel = 'lyrics';
+    const setActiveDesktopPanel = panel => {
+      if (!contextPanels[panel]) return;
+      activePanel = panel;
+      Object.entries(contextPanels).forEach(([key, node]) => {
+        if (!node) return;
+        node.classList.toggle('active', key === panel);
+        node.setAttribute('aria-hidden', key === panel ? 'false' : 'true');
+      });
+      Object.entries(contextTabMap).forEach(([key, btn]) => {
+        if (!btn) return;
+        const isActive = key === panel;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', String(isActive));
+      });
+    };
+    const updateHeaderState = panel => {
+      Object.entries(headerButtonMap).forEach(([key, btn]) => {
+        if (!btn) return;
+        btn.classList.toggle('active', !mqMobile.matches && key === panel);
+      });
+    };
+    const handlePanelRequest = panel => {
+      if (!(panel in contextPanels)) return;
+      activePanel = panel;
+      if (mqMobile.matches) {
+        openMobileSheet(panel === 'lyrics' ? 0 : 1);
+      } else {
+        setActiveDesktopPanel(panel);
+      }
+      updateHeaderState(panel);
+    };
 
-// Separate function for handling mobile playlist clicks
-function handleMobilePlaylistClick(e) {
-  const item = e.target.closest('.playlist-item');
-  if (!item || e.target.closest('.action-btn')) return; // Ignore clicks on action buttons
-
-  const index = parseInt(item.dataset.index, 10);
-  if (!isNaN(index) && index >= 0 && index < currentPlaylist.length) {
-    playTrack(index);
-    syncMobileTransportState();
-    closeMobileSheet();
-  }
-}
+    setActiveDesktopPanel(activePanel);
+    updateHeaderState(activePanel);
     const audio=$('audioPlayer');
     const albumCover=$('albumCover');
     const bgArt=$('bgArt');
@@ -711,8 +633,6 @@ const mobileSlider = document.getElementById('mobileSlider');
 const mobileSheetTitle = document.getElementById('mobileSheetTitle');
 
 let currentPage = 0; // 0=歌詞, 1=清單
-const lyricsPageMobile = document.getElementById('lyricsPageMobile');
-const queuePageMobile = document.getElementById('queuePageMobile');
 function mirrorLyricsToMobile() {
   const src = document.getElementById('lyricsContent');
   const dst = document.getElementById('lyricsContentMobile');
@@ -722,39 +642,37 @@ function mirrorLyricsToMobile() {
 }
 
 
-document.addEventListener("DOMContentLoaded", () => {
-  const lyricsPageMobile = document.getElementById('lyricsPageMobile');
-  const queuePageMobile = document.getElementById('queuePageMobile');
-
-  document.getElementById('lyricsTabBtn').addEventListener('click', () => {
-    lyricsPageMobile.hidden = false;
-    queuePageMobile.hidden = true;
-  });
-  document.getElementById('queueTabBtn').addEventListener('click', () => {
-    lyricsPageMobile.hidden = true;
-    queuePageMobile.hidden = false;
-  });
-
-  document.querySelectorAll('.back-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.closest('.mobile-page').hidden = true;
-    });
-  });
-});
-
-queueToggleBtn?.addEventListener('click', () => {
-  if (mqMobile.matches) {
-    openMobileSheet(1);
+lyricsTabBtn?.addEventListener('click', () => handlePanelRequest('lyrics'));
+queueTabBtn?.addEventListener('click', () => handlePanelRequest('queue'));
+lyricsToggleBtn?.addEventListener('click', () => handlePanelRequest('lyrics'));
+queueToggleBtn?.addEventListener('click', () => handlePanelRequest('queue'));
+lyricsToggleBtnMobile?.addEventListener('click', () => openMobileSheet(0));
+queueToggleBtnMobile?.addEventListener('click', () => openMobileSheet(1));
+const handleViewportChange = () => {
+  updateHeaderState(activePanel);
+  if (!mqMobile.matches) {
+    setActiveDesktopPanel(activePanel);
   }
-});
-
-// 綁定手機版專用按鈕
-lyricsToggleBtnMobile?.addEventListener('click', () => {
-  openMobileSheet(0);
-});
-
-queueToggleBtnMobile?.addEventListener('click', () => {
-  openMobileSheet(1);
+};
+if (mqMobile.addEventListener) mqMobile.addEventListener('change', handleViewportChange);
+else if (mqMobile.addListener) mqMobile.addListener(handleViewportChange);
+clearLibraryBtn?.addEventListener('click', async () => {
+  if (!currentPlaylist.length) {
+    showNotification('播放清單目前為空', 'warning');
+    return;
+  }
+  if (!confirm('確定要清空播放清單嗎？')) return;
+  currentPlaylist = [];
+  currentTrackIndex = -1;
+  stopPlayback();
+  updatePlaylistUI();
+  try {
+    await saveState();
+    showNotification('已清空播放清單', 'success');
+  } catch (e) {
+    console.warn('清空失敗', e);
+    showNotification('清空播放清單失敗', 'error');
+  }
 });
 
 mobileSheetClose?.addEventListener('click', closeMobileSheet);
@@ -955,8 +873,18 @@ const setArtwork = async (imageUrl, fallbackText = 'Music') => {
     const seekTo=clientX=>{if(!audio.duration)return;const rect=progressBar.getBoundingClientRect();const percent=Math.min(1,Math.max(0,(clientX-rect.left)/rect.width));audio.currentTime=percent*audio.duration;updateProgress()};
 // 1) 一口氣更新桌機版
 const updatePlaylistUI = () => {
-  // 更新桌面版播放清單
   playlist.innerHTML = '';
+  if (!currentPlaylist.length) {
+    playlist.innerHTML = `
+      <div class="playlist-empty">
+        <i class="fa-solid fa-music"></i>
+        <p>播放清單尚未加入任何歌曲</p>
+        <button type="button" data-action="open-upload">立即匯入</button>
+      </div>`;
+    playlist.querySelector('[data-action="open-upload"]')?.addEventListener('click', () => fileInput?.click());
+    mirrorQueueToMobile();
+    return;
+  }
   currentPlaylist.forEach((track, index) => {
     const item = document.createElement('div');
     item.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''}`;
@@ -1049,10 +977,10 @@ const updatePlaylistUI = () => {
         }
       });
     });
-  playlist.appendChild(item);
+    playlist.appendChild(item);
   });
-  
-mirrorQueueToMobile();  
+
+  mirrorQueueToMobile();
 };
 
     const stopPlayback=()=>{audio.pause();audio.removeAttribute('src');audio.load();trackTitle.textContent='請選擇歌曲';trackArtist.textContent='上傳 MP3 或拖放檔案進來';miniTitle.textContent='—';miniArtist.textContent='—';setArtwork(null,'Music');updateProgress();isPlaying=false;updateBadge('待機中');playBtn.innerHTML='<i class="fa-solid fa-play"></i>';playBtn.setAttribute('aria-pressed','false');miniPlayBtn.innerHTML='<i class="fa-solid fa-play"></i>'};
@@ -1548,20 +1476,22 @@ playerEl?.addEventListener('touchend', e => {
   
 });
   </script>
-<div class="mobile-page" id="lyricsPageMobile" hidden>
-  <header class="page-header">
-    <button class="back-btn" data-close="lyricsPageMobile"><i class="fa-solid fa-arrow-left"></i></button>
-    <h3>歌詞</h3>
-  </header>
-  <div class="lyrics-content" id="lyricsContentMobile"></div>
+<div class="mobile-sheet-backdrop" id="mobileSheetBackdrop" hidden></div>
+<div class="mobile-sheet" id="mobileSheet" hidden role="dialog" aria-modal="true" aria-labelledby="mobileSheetTitle">
+  <div class="mobile-sheet__header">
+    <div class="mobile-sheet__title" id="mobileSheetTitle"><i class="fa-solid fa-microphone-lines"></i> 歌詞</div>
+    <button class="mobile-sheet__close" type="button" id="mobileSheetClose" aria-label="關閉"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="mobile-sheet__slider" id="mobileSlider">
+    <div class="mobile-sheet__page">
+      <div class="lyrics-content" id="lyricsContentMobile"></div>
+    </div>
+    <div class="mobile-sheet__page">
+      <div class="playlist" id="playlistMobile"></div>
+    </div>
+  </div>
 </div>
 
-<div class="mobile-page" id="queuePageMobile" hidden>
-  <header class="page-header">
-    <button class="back-btn" data-close="queuePageMobile"><i class="fa-solid fa-arrow-left"></i></button>
-    <h3>播放清單</h3>
-  </header>
-  <div class="playlist" id="playlistMobile"></div>
 </div>
 
 </body>
