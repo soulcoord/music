@@ -1492,26 +1492,7 @@ function getDominantColor(imageUrl) {
     const fetchLyrics=async(title,artist)=>{const safe=s=>encodeURIComponent((s||'').trim());const endpoints=[`https://lrclib.net/api/search?track_name=${safe(title)}&artist_name=${safe(artist)}`,`https://lrclib.net/api/search?track_name=${safe(title)}`];for(const url of endpoints){try{const r=await fetch(url,{headers:{'Accept':'application/json'}});if(!r.ok)continue;const data=await r.json();if(Array.isArray(data)&&data.length){const best=data[0];const text=best.syncedLyrics||best.plainLyrics||'';if(text){return text}}}catch(_){}}throw new Error('NO_LYRICS')};
     const showNotification=(message,type='default')=>{const n=document.createElement('div');n.className=`notification ${type}`;n.textContent=message;notifications.appendChild(n);setTimeout(()=>{n.classList.add('fade-out');setTimeout(()=>n.remove(),220)},2800)};
     const updateBadge=t=>{statusBadge.textContent='';const icon=document.createElement('i');icon.className='fa-solid fa-circle';icon.style.fontSize='6px';statusBadge.appendChild(icon);statusBadge.insertAdjacentText('beforeend',' '+t)};
-    function updateFavoriteButtonState() {
-      if (!favoriteToggleBtn) return;
-      const hasTrack = currentTrackIndex >= 0 && currentTrackIndex < currentPlaylist.length;
-      favoriteToggleBtn.disabled = !hasTrack;
-      if (!hasTrack) {
-        favoriteToggleBtn.classList.remove('active');
-        favoriteToggleBtn.setAttribute('aria-pressed', 'false');
-        favoriteToggleBtn.setAttribute('aria-label', '加入最愛');
-        favoriteToggleBtn.title = '加入最愛';
-        favoriteToggleBtn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-        return;
-      }
-      const track = currentPlaylist[currentTrackIndex];
-      const isFav = !!track.favorite;
-      favoriteToggleBtn.classList.toggle('active', isFav);
-      favoriteToggleBtn.setAttribute('aria-pressed', String(isFav));
-      favoriteToggleBtn.setAttribute('aria-label', isFav ? '移除最愛' : '加入最愛');
-      favoriteToggleBtn.title = isFav ? '移除最愛' : '加入最愛';
-      favoriteToggleBtn.innerHTML = `<i class="${isFav ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i>`;
-    }
+
 
     function clearSleepTimerHandles() {
       if (sleepTimerId) {
@@ -1949,7 +1930,6 @@ const handleFiles = files => {
       saveState();
     });
 
-    favoriteToggleBtn?.addEventListener('click', () => toggleFavorite(currentTrackIndex));
 
     playbackSpeedSelect?.addEventListener('change', e => {
       const rate = parseFloat(e.target.value);
