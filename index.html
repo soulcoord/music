@@ -133,13 +133,6 @@ body {
   font-size: 1.2em;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
 
 .icon-button {
   display: inline-flex;
@@ -997,38 +990,11 @@ body {
   }
 }
 
-
-/* 快速操作按鈕 */
-.mobile-quick-actions {
-  display: none;
-  gap: 12px;
+@media (max-width: 780px) {
+  .progress-row.compact {
+    display: none;
+  }
 }
-
-.mobile-quick-actions button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text);
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.mobile-quick-actions button:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.mobile-quick-actions button.active {
-  border-color: var(--border-2);
-  background: rgba(255, 255, 255, 0.12);
-}
-
 /* 焦點樣式 */
 :focus-visible {
   outline: 2px solid var(--brand-2);
@@ -1099,11 +1065,6 @@ select:hover {
     padding: 20px 18px 24px;
   }
 
-  .header-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
   .icon-button {
     flex: 1 1 calc(50% - 6px);
     justify-content: center;
@@ -1128,10 +1089,6 @@ select:hover {
     gap: 20px;
   }
 
-  .header-actions {
-    order: 3;
-    gap: 10px;
-  }
 
   .icon-button {
     flex: 1 1 calc(50% - 5px);
@@ -1153,10 +1110,6 @@ select:hover {
     display: flex;
   }
 
-  .mobile-quick-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 
   .volume-row {
     width: 100%;
@@ -1249,9 +1202,6 @@ select:hover {
     padding: 4px 0;
   }
 
-  .mobile-quick-actions button span {
-    display: none;
-  }
 
   .record-wrap {
     width: clamp(180px, 45vw, 240px);
@@ -1379,6 +1329,129 @@ select:hover {
     border: 1px solid #000;
   }
 }
+
+.sleep-timer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #1a1f29, #151923);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  justify-content: space-between;
+}
+
+#sleepTimerBtn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2a2f3a, #1d2029);
+  border: 1px solid var(--border-2);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+#sleepTimerBtn:hover {
+  background: linear-gradient(135deg, #323846, #222632);
+  transform: translateY(-2px);
+}
+
+#sleepTimerBtn.active {
+  background: linear-gradient(135deg, #ff6b6b, #d94f4f);
+  border-color: rgba(255, 107, 107, 0.5);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 107, 107, 0.4);
+}
+
+.mobile-progress {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+}
+
+.mobile-progress .time {
+  font-size: 0.8rem;
+  color: var(--muted);
+  min-width: 36px;
+  text-align: center;
+}
+    .mobile-progress-container {
+      display: none;
+      width: 100%;
+      padding: 12px 0;
+    }
+    
+    .mobile-progress-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 40px;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    
+    .mobile-time {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 0.75rem;
+      text-align: center;
+    }
+    
+    .mobile-progress-bar {
+      position: relative;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      overflow: hidden;
+      transition: height 0.2s ease;
+    }
+    
+    .mobile-progress-bar:hover {
+      height: 8px;
+    }
+    
+    .mobile-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      border-radius: 999px;
+      transition: width 0.1s linear;
+    }
+    
+    .mobile-progress-thumb {
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--brand-2);
+      border: 2px solid rgba(0, 0, 0, 0.3);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.2s ease;
+      opacity: 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .mobile-progress-bar:hover .mobile-progress-thumb,
+    .mobile-progress-bar.dragging .mobile-progress-thumb {
+      opacity: 1;
+    }
+    
+    /* 在移动设备上显示移动版进度条 */
+    @media (max-width: 768px) {
+      .mobile-progress-container {
+        display: block;
+      }
+      
+      /* 调整控制按钮间距 */
+      .mobile-controls {
+        margin-top: 8px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -1387,11 +1460,6 @@ select:hover {
 <div class="player" role="region" aria-label="單色音樂播放器">
   <header class="player-header">
     <div class="player-brand"><i class="fa-solid fa-waveform-lines"></i> Monochrome Player</div>
-    <div class="header-actions">
-      <button class="icon-button secondary" type="button" id="lyricsToggleBtn" aria-controls="lyricsPanel" aria-label="切換歌詞面板"><i class="fa-solid fa-microphone-lines"></i><span class="btn-label"> 歌詞面板</span></button>
-      <button class="icon-button secondary" type="button" id="queueToggleBtn" aria-controls="queuePanel" aria-label="切換播放清單"><i class="fa-solid fa-list-music"></i><span class="btn-label"> 播放清單</span></button>
-      <button class="icon-button danger" type="button" id="clearLibraryBtn" aria-label="清空播放清單"><i class="fa-solid fa-broom"></i><span class="btn-label"> 清空播放</span></button>
-    </div>
   </header>
   <div class="player-body">
     <section class="left-pane" aria-label="歌詞與播放清單">
@@ -1454,6 +1522,16 @@ select:hover {
 </div>
 
       </div>
+  <div class="mobile-progress-container">
+    <div class="mobile-progress-row">
+      <div class="mobile-time" id="mobileCurrentTime">0:00</div>
+      <div class="mobile-progress-bar" id="mobileProgressBar" role="slider" aria-label="播放進度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+        <div class="mobile-progress-fill" id="mobileProgressFill"></div>
+        <div class="mobile-progress-thumb" id="mobileProgressThumb"></div>
+      </div>
+      <div class="mobile-time" id="mobileTotalTime">0:00</div>
+    </div>
+  </div>
       <div class="controls mobile-controls" aria-label="播放控制">
         <button class="control-icon" id="shuffleBtnMobile" title="隨機"><i class="fa-solid fa-shuffle"></i></button>
         <button class="control-btn ghost" id="prevBtnMobile" title="上一首"><i class="fa-solid fa-backward-step"></i></button>
@@ -1461,10 +1539,7 @@ select:hover {
         <button class="control-btn ghost" id="nextBtnMobile" title="下一首"><i class="fa-solid fa-forward-step"></i></button>
         <button class="control-icon" id="repeatBtnMobile" title="循環"><i class="fa-solid fa-repeat"></i></button>
       </div>
-      <div class="mobile-quick-actions" aria-label="快速開啟面板">
-        <button type="button" id="lyricsToggleBtnMobile"><i class="fa-solid fa-microphone-lines"></i><span> 歌詞</span></button>
-        <button type="button" id="queueToggleBtnMobile"><i class="fa-solid fa-list"></i><span> 清單</span></button>
-      </div>
+
       <div class="volume-row">
         <i class="fa-solid fa-volume-high volume-icon" id="volumeIcon" title="靜音 (M)"></i>
         <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7" aria-label="音量調整" />
@@ -1481,10 +1556,10 @@ select:hover {
   </select>
 </div>
 
-<div class="volume-row">
-  <label style="font-size:0.9rem; margin-right:6px;">睡眠定時器</label>
-  <button id="sleepTimerBtn" class="control-icon" aria-pressed="false">未啟用</button>
-  <span id="sleepTimerStatus" style="font-size:0.85rem; color:var(--muted); margin-left:8px;">
+<div class="sleep-timer-row">
+  <label style="font-size:0.9rem;">睡眠定時器</label>
+  <button id="sleepTimerBtn" aria-pressed="false">未啟用</button>
+  <span id="sleepTimerStatus" style="font-size:0.85rem; color:var(--muted); flex:1; text-align:right;">
     點擊按鈕循環切換 15/30/60 分鐘
   </span>
 </div>
@@ -2024,10 +2099,108 @@ function getDominantColor(imageUrl) {
         const n=!atEnd?currentTrackIndex+1:(repeatMode===2?0:currentTrackIndex);
         if(n!==currentTrackIndex || repeatMode===2) playTrack(n);
       }
+    }; const mobileProgressBar = document.getElementById('mobileProgressBar');
+    const mobileProgressFill = document.getElementById('mobileProgressFill');
+    const mobileProgressThumb = document.getElementById('mobileProgressThumb');
+    const mobileCurrentTime = document.getElementById('mobileCurrentTime');
+    const mobileTotalTime = document.getElementById('mobileTotalTime');
+
+    const updateProgress = () => {
+      if (!audio.duration) return;
+      const p = (audio.currentTime / audio.duration) * 100;
+      
+      // 更新桌面版进度条
+      progressFill.style.width = `${p}%`;
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+      totalTimeEl.textContent = formatTime(audio.duration);
+      const x = (p / 100) * progressBar.offsetWidth;
+      progressThumb.style.left = `${x}px`;
+      progressTooltip.style.left = `${x}px`;
+      progressTooltip.textContent = formatTime(audio.currentTime);
+      progressBar.setAttribute('aria-valuenow', Math.round(p));
+      
+      // 更新移动版进度条
+      mobileProgressFill.style.width = `${p}%`;
+      mobileCurrentTime.textContent = formatTime(audio.currentTime);
+      mobileTotalTime.textContent = formatTime(audio.duration);
+      const mobileX = (p / 100) * mobileProgressBar.offsetWidth;
+      mobileProgressThumb.style.left = `${mobileX}px`;
+      mobileProgressBar.setAttribute('aria-valuenow', Math.round(p));
     };
-    const updateProgress=()=>{if(!audio.duration)return;const p=(audio.currentTime/audio.duration)*100;progressFill.style.width=`${p}%`;currentTimeEl.textContent=formatTime(audio.currentTime);totalTimeEl.textContent=formatTime(audio.duration);const x=(p/100)*progressBar.offsetWidth;progressThumb.style.left=`${x}px`;progressTooltip.style.left=`${x}px`;progressTooltip.textContent=formatTime(audio.currentTime);progressBar.setAttribute('aria-valuenow',Math.round(p))};
+    
+    // 移动版进度条事件处理
+    mobileProgressBar.addEventListener('pointerdown', e => {
+      isDragging = true;
+      mobileProgressBar.classList.add('dragging');
+      seekTo(e.clientX);
+      mobileProgressBar.setPointerCapture(e.pointerId);
+    });
+    
+    mobileProgressBar.addEventListener('pointermove', e => {
+      if (isDragging) seekTo(e.clientX);
+    });
+    
+    mobileProgressBar.addEventListener('pointerup', e => {
+      isDragging = false;
+      mobileProgressBar.classList.remove('dragging');
+      mobileProgressBar.releasePointerCapture(e.pointerId);
+    });
+    
+    mobileProgressBar.addEventListener('touchstart', e => {
+      e.preventDefault();
+      isDragging = true;
+      mobileProgressBar.classList.add('dragging');
+      seekTo(e.touches[0].clientX);
+    }, { passive: false });
+    
+    mobileProgressBar.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (isDragging) seekTo(e.touches[0].clientX);
+    }, { passive: false });
+    
+    mobileProgressBar.addEventListener('touchend', e => {
+      isDragging = false;
+      mobileProgressBar.classList.remove('dragging');
+    });
+function mobileSeek(clientX) {
+  if (!audio.duration) return;
+  const rect = mobileProgressBar.getBoundingClientRect();
+  const percent = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  audio.currentTime = percent * audio.duration;
+  updateProgress();
+}
+
+// 然後把原本的 touch / pointer handler 改成呼叫 mobileSeek：
+mobileProgressBar.addEventListener('pointerdown', e => {
+  isDragging = true;
+  mobileProgressBar.classList.add('dragging');
+  mobileSeek(e.clientX);              // <- 改這裡
+  mobileProgressBar.setPointerCapture(e.pointerId);
+});
+mobileProgressBar.addEventListener('pointermove', e => {
+  if (isDragging) mobileSeek(e.clientX);  // <- 這裡也
+});
+mobileProgressBar.addEventListener('pointerup', e => {
+  isDragging = false;
+  mobileProgressBar.classList.remove('dragging');
+  mobileProgressBar.releasePointerCapture(e.pointerId);
+});
+
+mobileProgressBar.addEventListener('touchstart', e => {
+  e.preventDefault();
+  isDragging = true;
+  mobileProgressBar.classList.add('dragging');
+  mobileSeek(e.touches[0].clientX);       // <- 以及這裡
+}, { passive: false });
+mobileProgressBar.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (isDragging) mobileSeek(e.touches[0].clientX);
+}, { passive: false });
+mobileProgressBar.addEventListener('touchend', e => {
+  isDragging = false;
+  mobileProgressBar.classList.remove('dragging');
+});
     const seekTo=clientX=>{if(!audio.duration)return;const rect=progressBar.getBoundingClientRect();const percent=Math.min(1,Math.max(0,(clientX-rect.left)/rect.width));audio.currentTime=percent*audio.duration;updateProgress()};
-// 1) 一口氣更新桌機版
 const updatePlaylistUI = () => {
   playlist.innerHTML = '';
   if (!currentPlaylist.length) {
