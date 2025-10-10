@@ -515,55 +515,56 @@
                         <div class="text-sm font-medium">${account['ID']}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm">${account['用户名']}</div>
+                        <div class="text-sm">${account['用戶名']}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-mono">${maskPassword(account['密码'])}</div>
+                        <div class="text-sm font-mono">${maskPassword(account['密碼'])}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex space-x-2">
                             <div class="copy-tooltip">
                                 <button class="copy-username px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded transition-colors" 
-                                        data-username="${account['用户名']}">
+                                        data-username="${account['用戶名']}">
                                     <i class="fa fa-user"></i>
                                 </button>
-                                <span class="tooltip-text">複製用户名</span>
+                                <span class="tooltip-text">覆制用戶名</span>
                             </div>
                             <div class="copy-tooltip">
                                 <button class="copy-password px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded transition-colors"
-                                        data-password="${account['密码']}">
+                                        data-password="${account['密碼']}">
                                     <i class="fa fa-key"></i>
                                 </button>
-                                <span class="tooltip-text">複製密码</span>
+                                <span class="tooltip-text">覆制密碼</span>
                             </div>
                             <div class="copy-tooltip">
                                 <button class="copy-credentials px-2 py-1 bg-success/20 hover:bg-success/30 text-success rounded transition-colors"
-                                        data-username="${account['用户名']}" 
-                                        data-password="${account['密码']}">
+                                        data-username="${account['用戶名']}" 
+                                        data-password="${account['密碼']}">
                                     <i class="fa fa-copy"></i>
                                 </button>
-                                <span class="tooltip-text">複製帳號密碼</span>
+                                <span class="tooltip-text">覆制賬號密碼</span>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm">${account['邮箱']}</div>
+                        <div class="text-sm">${account['郵箱']}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="status-badge ${statusClass}">${statusText}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm">${account['被锁时长']}</div>
+                        <div class="text-sm">${account['被鎖時長']}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm ${getRemainingDaysClass(account['倒数天数'])}">
-                            ${account['倒数天数'] || '-'}
+                        <div class="text-sm ${getRemainingDaysClass(account['倒數天數'])}">
+                            ${account['倒數天數'] || '-'}
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm">${account['下次被锁时长']}</div>
+                        <div class="text-sm">${account['下次被鎖時長']}</div>
                     </td>
                 `;
+                
                 accountsTableBody.appendChild(row);
             });
             
@@ -622,18 +623,17 @@
             // 確定狀態樣式
             let statusClass = '';
             let statusText = '';
-            
-            if (selectedAccount['被鎖時長'] === '未被鎖') {
+
+            if (account['被锁时长'] === '未被锁') {
                 statusClass = 'bg-success/20 text-success';
-                statusText = '未被鎖';
-            } else if (selectedAccount['下次被鎖時長'] === '永久') {
+                statusText = '未被锁';
+            } else if (account['下次被锁时长'] === '永久') {
                 statusClass = 'bg-danger/20 text-danger';
-                statusText = '永久鎖定';
+                statusText = '永久锁定';
             } else {
                 statusClass = 'bg-warning/20 text-warning';
-                statusText = '臨時鎖定';
+                statusText = '临时锁定';
             }
-            
             // 填充模態框內容
             modalContent.innerHTML = `
                 <div class="space-y-4">
