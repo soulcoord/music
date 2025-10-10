@@ -1160,3 +1160,51 @@ playerEl?.addEventListener('touchstart', e => {
     touchStartX = e.touches[0].clientX;
   }
 });
+// 播放狀態切換時的平滑過渡
+function togglePlay() {
+  const isPlaying = audioPlayer.paused;
+  const vinyl = document.getElementById('vinyl');
+  
+  // 添加過渡效果
+  vinyl.style.transition = 'transform 0.5s ease-out';
+  
+  if (isPlaying) {
+    audioPlayer.play();
+    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    playBtnMobile.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    vinyl.classList.add('spinning');
+    
+    // 狀態標誌動畫
+    statusBadge.innerHTML = '<i class="fa-solid fa-circle-pulse" style="font-size:6px"></i> 播放中';
+    statusBadge.style.transition = 'all 0.3s ease';
+    statusBadge.style.background = 'rgba(144, 238, 144, 0.2)';
+    statusBadge.style.borderColor = 'rgba(144, 238, 144, 0.3)';
+  } else {
+    audioPlayer.pause();
+    playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    playBtnMobile.innerHTML = '<i class="fa-solid fa-play"></i>';
+    vinyl.classList.remove('spinning');
+    
+    // 狀態標誌動畫
+    statusBadge.innerHTML = '<i class="fa-solid fa-circle" style="font-size:6px"></i> 已暫停';
+    statusBadge.style.background = 'rgba(255, 209, 102, 0.2)';
+    statusBadge.style.borderColor = 'rgba(255, 209, 102, 0.3)';
+  }
+}
+
+// 音量變化時的圖標切換
+volumeSlider.addEventListener('input', function() {
+  const volume = this.value;
+  const icon = document.getElementById('volumeIcon');
+  
+  if (volume == 0) {
+    icon.className = 'fa-solid fa-volume-off volume-icon';
+    icon.classList.add('muted');
+  } else if (volume < 0.5) {
+    icon.className = 'fa-solid fa-volume-low volume-icon';
+    icon.classList.remove('muted');
+  } else {
+    icon.className = 'fa-solid fa-volume-high volume-icon';
+    icon.classList.remove('muted');
+  }
+});

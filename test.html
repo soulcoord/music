@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>賬號管理系統</title>
+    <!-- 引入Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 配置Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#367bf5',
+                        success: '#36d399',
+                        warning: '#ffab00',
+                        danger: '#ff5757',
+                        info: '#8892a0',
+                        dark: {
+                            100: '#374151',
+                            200: '#2d3748',
+                            300: '#1f2937',
+                            400: '#111827',
+                            500: '#030712'
+                        },
+                        light: '#f9fafb'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .table-shadow {
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            }
+            .status-badge {
+                @apply px-2 py-1 rounded-full text-xs font-medium;
+            }
+            .fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            .header-scrolled {
+                @apply py-2 shadow-lg;
+            }
+            .copy-tooltip {
+                position: relative;
+                display: inline-block;
+            }
+            .copy-tooltip .tooltip-text {
+                visibility: hidden;
+                width: 120px;
+                background-color: rgba(0, 0, 0, 0.8);
+                color: #fff;
+                text-align: center;
+                border-radius: 4px;
+                padding: 5px;
+                position: absolute;
+                z-index: 1;
+                bottom: 125%;
+                left: 50%;
+                transform: translateX(-50%);
+                opacity: 0;
+                transition: opacity 0.3s;
+                font-size: 12px;
+            }
+            .copy-tooltip .tooltip-text::after {
+                content: "";
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: rgba(0, 0, 0, 0.8) transparent transparent transparent;
+            }
+            .copy-tooltip:hover .tooltip-text {
+                visibility: visible;
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark-400 font-inter text-light min-h-screen">
+    <!-- 頂部導航欄 -->
+    <header class="bg-dark-300 shadow-md sticky top-0 z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fa fa-key text-primary text-2xl mr-3"></i>
+                <h1 class="text-xl md:text-2xl font-bold text-primary">賬號管理系統</h1>
+            </div>
+            <div class="flex items-center space-x-4 w-full md:w-auto justify-between md:justify-normal">
+                <div class="text-sm text-info hidden md:block">
+                    <span id="current-date"></span>
+                </div>
+                <button id="refresh-btn" class="flex items-center px-3 py-2 bg-primary/20 hover:bg-primary/30 text-primary rounded-lg transition-all duration-200 ml-auto md:ml-0">
+                    <i class="fa fa-refresh mr-2"></i>
+                    <span class="hidden sm:inline">刷新數據</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主內容區 -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- 狀態卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-dark-300 rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-primary">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-info text-sm">總賬號數</p>
+                        <h3 id="total-accounts" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <i class="fa fa-users text-primary"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-dark-300 rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-success">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-info text-sm">未被鎖賬號</p>
+                        <h3 id="unlocked-accounts" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center">
+                        <i class="fa fa-unlock text-success"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-dark-300 rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-warning">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-info text-sm">臨時鎖定</p>
+                        <h3 id="temporarily-locked" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
+                        <i class="fa fa-lock text-warning"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-dark-300 rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow duration-300 border-l-4 border-danger">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-info text-sm">永久鎖定</p>
+                        <h3 id="permanently-locked" class="text-2xl font-bold mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-danger/20 flex items-center justify-center">
+                        <i class="fa fa-ban text-danger"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 篩選和搜索區域 -->
+        <div class="bg-dark-300 rounded-xl p-4 mb-6 shadow-md">
+            <div class="flex flex-col md:flex-row justify-between gap-4">
+                <div class="flex flex-wrap gap-3">
+                    <select id="lock-status-filter" class="px-3 py-2 bg-dark-200 border border-dark-100 text-light rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="all">所有狀態</option>
+                        <option value="unlocked">未被鎖</option>
+                        <option value="temporarily">臨時鎖定</option>
+                        <option value="permanently">永久鎖定</option>
+                    </select>
+                    <select id="sort-by" class="px-3 py-2 bg-dark-200 border border-dark-100 text-light rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="id">按ID排序</option>
+                        <option value="remaining-days-asc">按剩余天數升序</option>
+                        <option value="remaining-days-desc">按剩余天數降序</option>
+                    </select>
+                </div>
+                <div class="relative w-full md:w-64">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="搜索用戶名/郵箱/ID..." 
+                        class="w-full pl-10 pr-3 py-2 bg-dark-200 border border-dark-100 text-light rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all"
+                    >
+                    <i class="fa fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-info"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 表格區域 -->
+        <div class="bg-dark-300 rounded-xl shadow-md overflow-hidden mb-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-dark-100">
+                    <thead class="bg-dark-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">用戶名</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">密碼</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">賬號操作</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">郵箱</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">狀態</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">被鎖時長</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">剩余時間</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-info uppercase tracking-wider">下次鎖定</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accounts-table-body" class="bg-dark-300 divide-y divide-dark-100">
+                        <!-- 表格內容將通過JavaScript動態填充 -->
+                        <tr>
+                            <td colspan="9" class="px-6 py-12 text-center text-info">
+                                <div class="flex flex-col items-center">
+                                    <i class="fa fa-spinner fa-spin text-primary text-3xl mb-3"></i>
+                                    <p>正在加載數據...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- 分頁控件 -->
+            <div class="px-6 py-4 bg-dark-200 border-t border-dark-100 flex flex-col sm:flex-row justify-between items-center">
+                <div class="text-sm text-info mb-4 sm:mb-0">
+                    顯示 <span id="showing-range">0-0</span> 條，共 <span id="total-count">0</span> 條
+                </div>
+                <div class="flex space-x-2">
+                    <button id="prev-page" class="px-3 py-1 bg-dark-300 border border-dark-100 text-light rounded hover:bg-dark-100 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fa fa-chevron-left text-sm"></i>
+                    </button>
+                    <button id="next-page" class="px-3 py-1 bg-dark-300 border border-dark-100 text-light rounded hover:bg-dark-100 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fa fa-chevron-right text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="bg-dark-300 border-t border-dark-100 py-4">
+        <div class="container mx-auto px-4 text-center text-sm text-info">
+            <p>賬號管理系統 &copy; <span id="current-year"></span></p>
+        </div>
+    </footer>
+
+    <!-- 賬號詳情模態框 -->
+    <div id="account-modal" class="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center hidden fade-in">
+        <div class="bg-dark-300 rounded-xl w-full max-w-lg mx-4 shadow-xl overflow-hidden border border-dark-100">
+            <div class="px-6 py-4 border-b border-dark-100 flex justify-between items-center">
+                <h3 class="text-lg font-semibold">賬號詳情</h3>
+                <button id="close-modal" class="text-info hover:text-light">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="p-6">
+                <!-- 模態框內容將通過JavaScript動態填充 -->
+            </div>
+            <div class="px-6 py-4 bg-dark-200 border-t border-dark-100 flex justify-end">
+                <button id="close-modal-btn" class="px-4 py-2 bg-primary text-light rounded-lg hover:bg-primary/90 transition-colors">
+                    關閉
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 配置API URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzgdfahPZtww7xSKo0rKCkEHcyhtn8HRcp_igqCmrWAp3_qx0YfaHIkGAif6bAt5iU/exec';
+        
+        // 全局變量
+        let allAccounts = [];
+        let filteredAccounts = [];
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        
+        // DOM元素
+        const accountsTableBody = document.getElementById('accounts-table-body');
+        const lockStatusFilter = document.getElementById('lock-status-filter');
+        const sortBySelect = document.getElementById('sort-by');
+        const searchInput = document.getElementById('search-input');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const showingRangeSpan = document.getElementById('showing-range');
+        const totalCountSpan = document.getElementById('total-count');
+        const totalAccountsSpan = document.getElementById('total-accounts');
+        const unlockedAccountsSpan = document.getElementById('unlocked-accounts');
+        const temporarilyLockedSpan = document.getElementById('temporarily-locked');
+        const permanentlyLockedSpan = document.getElementById('permanently-locked');
+        const accountModal = document.getElementById('account-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal');
+        const closeModalButton = document.getElementById('close-modal-btn');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const currentDateSpan = document.getElementById('current-date');
+        const currentYearSpan = document.getElementById('current-year');
+        const header = document.querySelector('header');
+        
+        // 當前選中的賬號
+        let selectedAccount = null;
+        
+        // 初始化頁面
+        document.addEventListener('DOMContentLoaded', () => {
+            // 設置當前日期和年份
+            const now = new Date();
+            currentDateSpan.textContent = now.toLocaleDateString('zh-CN', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric', 
+                weekday: 'long' 
+            });
+            currentYearSpan.textContent = now.getFullYear();
+            
+            // 加載賬號數據
+            fetchAccountData();
+            
+            // 添加事件監聽器
+            lockStatusFilter.addEventListener('change', applyFilters);
+            sortBySelect.addEventListener('change', applyFilters);
+            searchInput.addEventListener('input', applyFilters);
+            prevPageBtn.addEventListener('click', goToPrevPage);
+            nextPageBtn.addEventListener('click', goToNextPage);
+            closeModalBtn.addEventListener('click', closeModal);
+            closeModalButton.addEventListener('click', closeModal);
+            refreshBtn.addEventListener('click', refreshData);
+            
+            // 滾動時改變頭部樣式
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 10) {
+                    header.classList.add('header-scrolled');
+                } else {
+                    header.classList.remove('header-scrolled');
+                }
+            });
+            
+            // 點擊模態框外部關閉模態框
+            accountModal.addEventListener('click', (e) => {
+                if (e.target === accountModal) {
+                    closeModal();
+                }
+            });
+            
+            // 防止模態框內部點擊事件冒泡
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+        
+        // 獲取賬號數據
+        async function fetchAccountData() {
+            try {
+                showLoading();
+                
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP 錯誤！狀態碼: ${response.status}`);
+                }
+                
+                // 解析 JSON 響應
+                const data = await response.json();
+                
+                console.log("成功獲取到的賬號數據:", data);
+                
+                // 存儲所有賬號數據
+                allAccounts = data;
+                
+                // 應用篩選和排序
+                applyFilters();
+                
+                // 更新統計數據
+                updateStatistics();
+                
+            } catch (error) {
+                console.error("讀取 Google Sheets 數據時出錯:", error);
+                showError('加載數據失敗，請稍後重試');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 刷新數據
+        function refreshData() {
+            refreshBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i><span class="hidden sm:inline">刷新中...</span>';
+            refreshBtn.disabled = true;
+            
+            fetchAccountData().then(() => {
+                refreshBtn.innerHTML = '<i class="fa fa-refresh mr-2"></i><span class="hidden sm:inline">刷新數據</span>';
+                refreshBtn.disabled = false;
+                
+                // 顯示刷新成功提示
+                showToast('數據已刷新');
+            });
+        }
+        
+        // 應用篩選和排序
+        function applyFilters() {
+            // 重置當前頁碼
+            currentPage = 1;
+            
+            // 獲取篩選條件
+            const lockStatus = lockStatusFilter.value;
+            const sortBy = sortBySelect.value;
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            // 應用篩選
+            filteredAccounts = allAccounts.filter(account => {
+                // 狀態篩選
+                if (lockStatus === 'unlocked' && account['被鎖時長'] !== '未被鎖') {
+                    return false;
+                }
+                if (lockStatus === 'temporarily' && 
+                    (account['被鎖時長'] === '未被鎖' || account['下次被鎖時長'] === '永久')) {
+                    return false;
+                }
+                if (lockStatus === 'permanently' && account['下次被鎖時長'] !== '永久') {
+                    return false;
+                }
+                
+                // 搜索篩選
+                if (searchTerm) {
+                    const matchesSearch = 
+                        account['用戶名']?.toLowerCase().includes(searchTerm) ||
+                        account['郵箱']?.toLowerCase().includes(searchTerm) ||
+                        account['ID']?.toString().toLowerCase().includes(searchTerm);
+                    
+                    if (!matchesSearch) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // 應用排序
+            filteredAccounts.sort((a, b) => {
+                switch (sortBy) {
+                    case 'id':
+                        return a['ID'] > b['ID'] ? 1 : -1;
+                    case 'remaining-days-asc':
+                        // 提取天數數值進行比較
+                        const daysA = parseFloat(a['倒數天數']) || (a['被鎖時長'] === '未被鎖' ? -1 : Infinity);
+                        const daysB = parseFloat(b['倒數天數']) || (b['被鎖時長'] === '未被鎖' ? -1 : Infinity);
+                        return daysA - daysB;
+                    case 'remaining-days-desc':
+                        const daysA2 = parseFloat(a['倒數天數']) || (a['被鎖時長'] === '未被鎖' ? -1 : Infinity);
+                        const daysB2 = parseFloat(b['倒數天數']) || (b['被鎖時長'] === '未被鎖' ? -1 : Infinity);
+                        return daysB2 - daysA2;
+                    default:
+                        return 0;
+                }
+            });
+            
+            // 更新表格
+            renderTable();
+            
+            // 更新分頁控件
+            updatePagination();
+        }
+        
+        // 渲染表格
+        function renderTable() {
+            // 清空表格
+            accountsTableBody.innerHTML = '';
+            
+            // 如果沒有數據
+            if (filteredAccounts.length === 0) {
+                accountsTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="9" class="px-6 py-12 text-center text-info">
+                            <div class="flex flex-col items-center">
+                                <i class="fa fa-search text-dark-100 text-3xl mb-3"></i>
+                                <p>沒有找到匹配的賬號</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // 計算當前頁顯示的數據範圍
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredAccounts.length);
+            const currentItems = filteredAccounts.slice(startIndex, endIndex);
+            
+            // 更新顯示範圍
+            showingRangeSpan.textContent = `${startIndex + 1}-${endIndex}`;
+            totalCountSpan.textContent = filteredAccounts.length;
+            
+            // 添加行
+            currentItems.forEach(account => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-dark-200 transition-colors fade-in';
+                
+                // 確定狀態樣式
+                let statusClass = '';
+                let statusText = '';
+                
+                if (account['被鎖時長'] === '未被鎖') {
+                    statusClass = 'bg-success/20 text-success';
+                    statusText = '未被鎖';
+                } else if (account['下次被鎖時長'] === '永久') {
+                    statusClass = 'bg-danger/20 text-danger';
+                    statusText = '永久鎖定';
+                } else {
+                    statusClass = 'bg-warning/20 text-warning';
+                    statusText = '臨時鎖定';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium">${account['ID']}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${account['用户名']}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-mono">${maskPassword(account['密码'])}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex space-x-2">
+                            <div class="copy-tooltip">
+                                <button class="copy-username px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded transition-colors" 
+                                        data-username="${account['用户名']}">
+                                    <i class="fa fa-user"></i>
+                                </button>
+                                <span class="tooltip-text">複製用户名</span>
+                            </div>
+                            <div class="copy-tooltip">
+                                <button class="copy-password px-2 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded transition-colors"
+                                        data-password="${account['密码']}">
+                                    <i class="fa fa-key"></i>
+                                </button>
+                                <span class="tooltip-text">複製密码</span>
+                            </div>
+                            <div class="copy-tooltip">
+                                <button class="copy-credentials px-2 py-1 bg-success/20 hover:bg-success/30 text-success rounded transition-colors"
+                                        data-username="${account['用户名']}" 
+                                        data-password="${account['密码']}">
+                                    <i class="fa fa-copy"></i>
+                                </button>
+                                <span class="tooltip-text">複製帳號密碼</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${account['邮箱']}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${account['被锁时长']}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm ${getRemainingDaysClass(account['倒数天数'])}">
+                            ${account['倒数天数'] || '-'}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm">${account['下次被锁时长']}</div>
+                    </td>
+                `;
+                accountsTableBody.appendChild(row);
+            });
+            
+            // 添加覆制事件監聽器
+            document.querySelectorAll('.copy-username').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const username = e.currentTarget.getAttribute('data-username');
+                    copyToClipboard(username, '用戶名已覆制');
+                });
+            });
+            
+            document.querySelectorAll('.copy-password').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const password = e.currentTarget.getAttribute('data-password');
+                    copyToClipboard(password, '密碼已覆制');
+                });
+            });
+            
+            document.querySelectorAll('.copy-credentials').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const username = e.currentTarget.getAttribute('data-username');
+                    const password = e.currentTarget.getAttribute('data-password');
+                    const credentials = `${username}\n${password}`;
+                    copyToClipboard(credentials, '賬號密碼已覆制');
+                });
+            });
+        }
+        
+        // 覆制到剪貼板
+        function copyToClipboard(text, message) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(message);
+            }).catch(err => {
+                console.error('無法覆制內容: ', err);
+                showToast('覆制失敗，請手動覆制', 'error');
+            });
+        }
+        
+        // 獲取剩余天數的樣式類
+        function getRemainingDaysClass(daysText) {
+            if (!daysText) return '';
+            
+            const days = parseFloat(daysText);
+            if (days < 1) return 'text-danger font-medium';
+            if (days < 3) return 'text-warning';
+            return '';
+        }
+        
+        // 顯示賬號詳情
+        function viewAccountDetails(id) {
+            // 查找賬號
+            selectedAccount = allAccounts.find(account => account['ID'].toString() === id);
+            
+            if (!selectedAccount) return;
+            
+            // 確定狀態樣式
+            let statusClass = '';
+            let statusText = '';
+            
+            if (selectedAccount['被鎖時長'] === '未被鎖') {
+                statusClass = 'bg-success/20 text-success';
+                statusText = '未被鎖';
+            } else if (selectedAccount['下次被鎖時長'] === '永久') {
+                statusClass = 'bg-danger/20 text-danger';
+                statusText = '永久鎖定';
+            } else {
+                statusClass = 'bg-warning/20 text-warning';
+                statusText = '臨時鎖定';
+            }
+            
+            // 填充模態框內容
+            modalContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center pb-2 border-b">
+                        <h4 class="font-semibold">賬號信息</h4>
+                        <span class="status-badge ${statusClass}">${statusText}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-info">ID</p>
+                            <p class="font-medium">${selectedAccount['ID']}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-info">用戶名</p>
+                            <p class="font-medium">${selectedAccount['用戶名']}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-info">密碼</p>
+                            <p class="font-mono font-medium">${selectedAccount['密碼']}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-info">郵箱</p>
+                            <p class="font-medium">${selectedAccount['郵箱']}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2 border-t">
+                        <h4 class="font-semibold mb-3">鎖定信息</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-sm text-info">被鎖時長</p>
+                                <p>${selectedAccount['被鎖時長']}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-info">剩余時間</p>
+                                <p class="${getRemainingDaysClass(selectedAccount['倒數天數'])}">
+                                    ${selectedAccount['倒數天數'] || '-'}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-info">下次被鎖時長</p>
+                                <p>${selectedAccount['下次被鎖時長']}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${selectedAccount[''] ? `
+                    <div class="pt-2 border-t">
+                        <p class="text-sm text-info">最後更新時間</p>
+                        <p>${selectedAccount['']}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // 顯示模態框
+            accountModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // 關閉模態框
+        function closeModal() {
+            accountModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            selectedAccount = null;
+        }
+        
+        // 更新分頁控件
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
+            
+            // 更新按鈕狀態
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+        }
+        
+        // 上一頁
+        function goToPrevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+                updatePagination();
+                scrollToTableTop();
+            }
+        }
+        
+        // 下一頁
+        function goToNextPage() {
+            const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderTable();
+                updatePagination();
+                scrollToTableTop();
+            }
+        }
+        
+        // 滾動到表格頂部
+        function scrollToTableTop() {
+            const tableContainer = accountsTableBody.closest('.overflow-x-auto');
+            if (tableContainer) {
+                tableContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+        
+        // 更新統計數據
+        function updateStatistics() {
+            // 總賬號數
+            totalAccountsSpan.textContent = allAccounts.length;
+            
+            // 未被鎖賬號數
+            const unlockedCount = allAccounts.filter(acc => acc['被鎖時長'] === '未被鎖').length;
+            unlockedAccountsSpan.textContent = unlockedCount;
+            
+            // 永久鎖定賬號數
+            const permanentCount = allAccounts.filter(acc => acc['下次被鎖時長'] === '永久').length;
+            permanentlyLockedSpan.textContent = permanentCount;
+            
+            // 臨時鎖定賬號數
+            const temporaryCount = allAccounts.length - unlockedCount - permanentCount;
+            temporarilyLockedSpan.textContent = temporaryCount;
+        }
+        
+        // 顯示加載狀態
+        function showLoading() {
+            accountsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="px-6 py-12 text-center text-info">
+                        <div class="flex flex-col items-center">
+                            <i class="fa fa-spinner fa-spin text-primary text-3xl mb-3"></i>
+                            <p>正在加載數據...</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }
+        
+        // 隱藏加載狀態
+        function hideLoading() {
+            // 已在renderTable中處理
+        }
+        
+        // 顯示錯誤信息
+        function showError(message) {
+            accountsTableBody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="px-6 py-12 text-center text-info">
+                        <div class="flex flex-col items-center">
+                            <i class="fa fa-exclamation-circle text-danger text-3xl mb-3"></i>
+                            <p>${message}</p>
+                            <button id="retry-btn" class="mt-3 px-4 py-2 bg-primary text-light rounded-lg hover:bg-primary/90 transition-colors">
+                                重試
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            
+            // 添加重試按鈕事件
+            document.getElementById('retry-btn').addEventListener('click', fetchAccountData);
+        }
+        
+        // 顯示提示信息
+        function showToast(message, type = 'success') {
+            // 創建toast元素
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-y-10 opacity-0`;
+            
+            // 設置樣式和內容
+            if (type === 'success') {
+                toast.classList.add('bg-success', 'text-white');
+                toast.innerHTML = `<i class="fa fa-check-circle mr-2"></i>${message}`;
+            } else {
+                toast.classList.add('bg-danger', 'text-white');
+                toast.innerHTML = `<i class="fa fa-exclamation-circle mr-2"></i>${message}`;
+            }
+            
+            // 添加到頁面
+            document.body.appendChild(toast);
+            
+            // 顯示toast
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 10);
+            
+            // 3秒後隱藏
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+        
+        // 密碼掩碼處理
+        function maskPassword(password) {
+            if (!password) return '';
+            if (password.length <= 4) return '*'.repeat(password.length);
+            return password.substring(0, 2) + '*'.repeat(password.length - 4) + password.substring(password.length - 2);
+        }
+    </script>
+</body>
+</html>
