@@ -55,11 +55,13 @@ async function clearDB() {
   const clearLibraryBtn = document.getElementById('clearLibraryBtn');
   const lyricsTabBtn = document.getElementById('lyricsTabBtn');
   const queueTabBtn = document.getElementById('queueTabBtn');
+  const eqTabBtn = document.getElementById('eqTabBtn');
   const contextPanels = {
     lyrics: document.getElementById('lyricsPanel'),
-    queue: document.getElementById('queuePanel')
+    queue: document.getElementById('queuePanel'),
+    eq: document.getElementById('eqPanel')
   };
-  const contextTabMap = { lyrics: lyricsTabBtn, queue: queueTabBtn };
+  const contextTabMap = { lyrics: lyricsTabBtn, queue: queueTabBtn, eq: eqTabBtn };
   const headerButtonMap = { lyrics: lyricsToggleBtn, queue: queueToggleBtn };
   let activePanel = 'lyrics';
   const setActiveDesktopPanel = panel => {
@@ -143,6 +145,7 @@ async function clearDB() {
 
   lyricsTabBtn?.addEventListener('click', () => handlePanelRequest('lyrics'));
   queueTabBtn?.addEventListener('click', () => handlePanelRequest('queue'));
+  eqTabBtn?.addEventListener('click', () => handlePanelRequest('eq'));
   lyricsToggleBtn?.addEventListener('click', () => handlePanelRequest('lyrics'));
   queueToggleBtn?.addEventListener('click', () => handlePanelRequest('queue'));
   const handleViewportChange = () => {
@@ -172,6 +175,152 @@ async function clearDB() {
     }
   });
 
+
+  // Web Audio API Context
+  let audioCtx, analyser, source, gainNode;
+  let biquadFilters = [];
+  const frequencies = [60, 230, 910, 4000, 14000];
+  const eqSliders = document.querySelectorAll('.eq-slider');
+  const eqPresets = document.getElementById('eqPresets');
+  let animationId;
+
+  function initAudioContext() {
+    if (audioCtx) return;
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AudioContext();
+    source = audioCtx.createMediaElementSource(audio);
+
+    // Create EQ filters
+    frequencies.forEach(freq => {
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'peaking';
+      filter.frequency.value = freq;
+      filter.Q.value = 1.0;
+      filter.gain.value = 0;
+      biquadFilters.push(filter);
+    });
+
+    // Create Analyser
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+
+    // Connect nodes: Source -> Filters -> Analyser -> Destination
+    let node = source;
+    biquadFilters.forEach(filter => {
+      node.connect(filter);
+      node = filter;
+    });
+    node.connect(analyser);
+    analyser.connect(audioCtx.destination);
+
+    // Initialize visualizer
+    drawVisualizer();
+
+    // Load saved EQ settings
+    loadEQSettings();
+  }
+
+  function drawVisualizer() {
+    const canvas = document.getElementById('visualizer');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    // Resize canvas
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    function render() {
+      animationId = requestAnimationFrame(render);
+      analyser.getByteFrequencyData(dataArray);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const barWidth = (canvas.width / bufferLength) * 2.5;
+      let barHeight;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        barHeight = dataArray[i] * 1.5; // Scale height
+
+        // Use brand colors or gradient
+        ctx.fillStyle = `rgba(154, 164, 178, ${barHeight / 500})`; // Semi-transparent brand color
+        ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+        x += barWidth + 1;
+      }
+    }
+    render();
+  }
+
+  // EQ Handling
+  eqSliders.forEach((slider, index) => {
+    slider.addEventListener('input', (e) => {
+      if (!audioCtx) initAudioContext();
+      const val = parseFloat(e.target.value);
+      if (biquadFilters[index]) {
+        biquadFilters[index].gain.value = val;
+      }
+      saveEQSettings();
+      // Reset preset select to custom if changed
+      if (eqPresets) eqPresets.value = '';
+    });
+  });
+
+  const eqPresetValues = {
+    'flat': [0, 0, 0, 0, 0],
+    'bass': [8, 6, 0, -2, -4],
+    'pop': [4, 2, 0, 4, 4],
+    'rock': [6, 3, -2, 4, 6],
+    'jazz': [4, 2, -2, 2, 4],
+    'vocal': [-2, -2, 4, 4, 2]
+  };
+
+  if (eqPresets) {
+    eqPresets.addEventListener('change', (e) => {
+      if (!audioCtx) initAudioContext();
+      const preset = e.target.value;
+      if (eqPresetValues[preset]) {
+        eqPresetValues[preset].forEach((val, i) => {
+          if (biquadFilters[i]) biquadFilters[i].gain.value = val;
+          if (eqSliders[i]) eqSliders[i].value = val;
+        });
+        saveEQSettings();
+      }
+    });
+  }
+
+  function saveEQSettings() {
+    const gains = biquadFilters.map(f => f.gain.value);
+    localStorage.setItem('mono-player-eq', JSON.stringify(gains));
+  }
+
+  function loadEQSettings() {
+    const saved = localStorage.getItem('mono-player-eq');
+    if (saved) {
+      try {
+        const gains = JSON.parse(saved);
+        gains.forEach((val, i) => {
+          if (biquadFilters[i]) biquadFilters[i].gain.value = val;
+          if (eqSliders[i]) eqSliders[i].value = val;
+        });
+      } catch (e) { console.warn('EQ load failed', e); }
+    }
+  }
+
+  // Ensure AudioContext is resumed
+  document.addEventListener('click', () => {
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }, { once: true });
+
+  // Also init on play if not already
+  audio.addEventListener('play', () => {
+    if (!audioCtx) initAudioContext();
+    else if (audioCtx.state === 'suspended') audioCtx.resume();
+  });
 
   // 加入左右滑偵測
   let startX = 0;
@@ -626,6 +775,7 @@ async function clearDB() {
       const item = document.createElement('div');
       item.className = `playlist-item ${index === currentTrackIndex ? 'active' : ''} ${track.favorite ? 'favorite' : ''}`;
       item.dataset.index = index;
+      item.draggable = true; // Enable dragging
       item.innerHTML = `
       <div class="playlist-thumb" style="background-image: ${track.imageUrl ? `url(${track.imageUrl})` : createGradientFromText(track.title)}"></div>
       <div class="playlist-info">
@@ -634,12 +784,56 @@ async function clearDB() {
       </div>
       <div class="playlist-actions">
         <button class="action-btn ${track.favorite ? 'active' : ''}" data-action="favorite" title="${track.favorite ? '移除最愛' : '加入最愛'}"><i class="${track.favorite ? 'fa-solid fa-heart' : 'fa-regular fa-heart'}"></i></button>
-        <button class="action-btn" data-action="move-up" title="上移" ${index === 0 ? 'disabled' : ''}><i class="fa-solid fa-chevron-up"></i></button>
-        <button class="action-btn" data-action="move-down" title="下移" ${index === currentPlaylist.length - 1 ? 'disabled' : ''}><i class="fa-solid fa-chevron-down"></i></button>
         <button class="action-btn" data-action="play-next" title="下一首播放"><i class="fa-solid fa-forward"></i></button>
         <button class="action-btn" data-action="remove" title="移除"><i class="fa-solid fa-xmark"></i></button>
       </div>
     `;
+
+      // Drag and Drop Events
+      item.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', index);
+        e.dataTransfer.effectAllowed = 'move';
+        item.classList.add('draggable-source');
+      });
+
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        item.classList.add('drag-over');
+      });
+
+      item.addEventListener('dragleave', e => {
+        item.classList.remove('drag-over');
+      });
+
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+        if (fromIndex !== index) {
+          // Move item in array
+          const movedItem = currentPlaylist.splice(fromIndex, 1)[0];
+          currentPlaylist.splice(index, 0, movedItem);
+
+          // Update currentTrackIndex if necessary
+          if (currentTrackIndex === fromIndex) {
+            currentTrackIndex = index;
+          } else if (currentTrackIndex > fromIndex && currentTrackIndex <= index) {
+            currentTrackIndex--;
+          } else if (currentTrackIndex < fromIndex && currentTrackIndex >= index) {
+            currentTrackIndex++;
+          }
+
+          updatePlaylistUI();
+          saveState();
+        }
+      });
+
+      item.addEventListener('dragend', () => {
+        item.classList.remove('draggable-source');
+        document.querySelectorAll('.playlist-item').forEach(el => el.classList.remove('drag-over'));
+      });
+
 
       // 綁定點擊事件播放歌曲
       item.addEventListener('click', e => {

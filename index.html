@@ -10,6 +10,7 @@
 </head>
 <body>
   <div class="bg-art" id="bgArt" aria-hidden="true"></div>
+  <canvas id="visualizer" class="visualizer-canvas"></canvas>
   <div class="wrap" id="dropzone">
 <div class="player" role="region" aria-label="單色音樂播放器">
   <header class="player-header">
@@ -25,6 +26,7 @@
         <div class="context-tabs" role="tablist" aria-label="內容切換">
           <button class="context-tab active" type="button" id="lyricsTabBtn" role="tab" aria-selected="true" aria-controls="lyricsPanel"><i class="fa-solid fa-microphone-lines"></i> 歌詞</button>
           <button class="context-tab" type="button" id="queueTabBtn" role="tab" aria-selected="false" aria-controls="queuePanel"><i class="fa-solid fa-list"></i> 清單</button>
+          <button class="context-tab" type="button" id="eqTabBtn" role="tab" aria-selected="false" aria-controls="eqPanel"><i class="fa-solid fa-sliders"></i> 等化器</button>
         </div>
         <div class="context-panels">
           <div class="context-panel active" id="lyricsPanel" role="tabpanel" aria-labelledby="lyricsTabBtn">
@@ -34,6 +36,43 @@
           </div>
           <div class="context-panel" id="queuePanel" role="tabpanel" aria-labelledby="queueTabBtn" aria-hidden="true">
             <div class="playlist" id="playlist" aria-label="播放清單"></div>
+          </div>
+          <div class="context-panel" id="eqPanel" role="tabpanel" aria-labelledby="eqTabBtn" aria-hidden="true">
+            <div class="eq-container">
+              <div class="eq-presets">
+                <select id="eqPresets" aria-label="等化器預設">
+                  <option value="flat">原聲 (Flat)</option>
+                  <option value="bass">低音增強 (Bass)</option>
+                  <option value="pop">流行 (Pop)</option>
+                  <option value="rock">搖滾 (Rock)</option>
+                  <option value="jazz">爵士 (Jazz)</option>
+                  <option value="vocal">人聲 (Vocal)</option>
+                </select>
+              </div>
+              <div class="eq-sliders">
+                <!-- 60Hz, 230Hz, 910Hz, 4kHz, 14kHz -->
+                <div class="eq-band">
+                  <input type="range" class="eq-slider" min="-12" max="12" step="0.1" value="0" data-freq="60">
+                  <span class="eq-label">60Hz</span>
+                </div>
+                <div class="eq-band">
+                  <input type="range" class="eq-slider" min="-12" max="12" step="0.1" value="0" data-freq="230">
+                  <span class="eq-label">230Hz</span>
+                </div>
+                <div class="eq-band">
+                  <input type="range" class="eq-slider" min="-12" max="12" step="0.1" value="0" data-freq="910">
+                  <span class="eq-label">910Hz</span>
+                </div>
+                <div class="eq-band">
+                  <input type="range" class="eq-slider" min="-12" max="12" step="0.1" value="0" data-freq="4000">
+                  <span class="eq-label">4kHz</span>
+                </div>
+                <div class="eq-band">
+                  <input type="range" class="eq-slider" min="-12" max="12" step="0.1" value="0" data-freq="14000">
+                  <span class="eq-label">14kHz</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -72,6 +111,9 @@
   </button>
   <button class="control-icon" id="repeatBtn" aria-pressed="false" title="循環 (R)">
     <i class="fa-solid fa-repeat"></i>
+  </button>
+  <button class="control-icon" id="shortcutsBtn" title="鍵盤快捷鍵 (?)">
+    <i class="fa-solid fa-keyboard"></i>
   </button>
 </div>
 
@@ -138,6 +180,28 @@
     </div>
   </div>
   <div class="notifications" id="notifications"></div>
+
+  <dialog id="shortcutsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>鍵盤快捷鍵</h3>
+        <button class="close-modal-btn" id="closeShortcutsBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-item"><span class="key">Space</span> <span class="desc">播放 / 暫停</span></div>
+        <div class="shortcut-item"><span class="key">←</span> <span class="desc">倒轉 10 秒</span></div>
+        <div class="shortcut-item"><span class="key">→</span> <span class="desc">快進 10 秒</span></div>
+        <div class="shortcut-item"><span class="key">↑</span> <span class="desc">增加音量</span></div>
+        <div class="shortcut-item"><span class="key">↓</span> <span class="desc">減少音量</span></div>
+        <div class="shortcut-item"><span class="key">N</span> <span class="desc">下一首</span></div>
+        <div class="shortcut-item"><span class="key">P</span> <span class="desc">上一首</span></div>
+        <div class="shortcut-item"><span class="key">S</span> <span class="desc">隨機播放開關</span></div>
+        <div class="shortcut-item"><span class="key">R</span> <span class="desc">循環模式切換</span></div>
+        <div class="shortcut-item"><span class="key">M</span> <span class="desc">靜音 / 恢復</span></div>
+      </div>
+    </div>
+  </dialog>
+
   <input type="file" id="fileInput" accept="audio/*" multiple hidden>
   <audio id="audioPlayer" crossorigin="anonymous"></audio>
   <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.7/dist/jsmediatags.min.js"></script>
