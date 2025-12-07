@@ -93,7 +93,7 @@
     /* --- Layout --- */
     .app-container {
       width: 100%; height: 100%;
-      display: grid; grid-template-columns: 40% 60%; grid-template-rows: 1fr 110px;
+      display: grid; grid-template-columns: 40% 60%; grid-template-rows: 1fr 120px;
       padding: 40px 40px 0 40px;
     }
 
@@ -193,7 +193,7 @@
       padding-bottom: 30px; z-index: 100;
     }
     .progress-container {
-        width: 100%; height: 30px; cursor: pointer; margin-bottom: 10px;
+        width: 100%; height: 30px; cursor: pointer; margin-bottom: 15px;
         display: flex; flex-direction: column; justify-content: center;
         position: relative;
     }
@@ -202,30 +202,36 @@
     .progress-container:hover .progress-bg { height: 6px; }
     .progress-fill { height: 100%; width: 0%; background: var(--accent-color); box-shadow: 0 0 10px var(--accent-color); pointer-events: none; }
 
-    .controls-row { display: flex; align-items: center; justify-content: space-between; }
-    .main-ctrls { display: flex; align-items: center; gap: 20px; flex: 1; justify-content: center; }
+    .controls-row { display: flex; align-items: center; justify-content: space-between; position: relative; }
+    
+    /* NEW: Consolidated Main Controls (5 buttons) */
+    .main-ctrls { 
+        display: flex; align-items: center; gap: 20px; flex: 2; justify-content: center; 
+    }
     
     .ctrl-btn {
         background: transparent; border: none; color: var(--text-main);
         font-size: 1.2rem; cursor: pointer; opacity: 0.7; padding: 10px;
-        transition: all 0.2s; border-radius: 50%;
+        transition: all 0.2s; border-radius: 50%; display: flex; align-items: center; justify-content: center;
     }
     .ctrl-btn:hover { opacity: 1; background: rgba(255,255,255,0.1); transform: scale(1.1); }
     .ctrl-btn.active { color: var(--accent-color); opacity: 1; text-shadow: 0 0 10px var(--accent-color); }
     [data-theme="light"] .ctrl-btn:hover { background: rgba(0,0,0,0.05); }
 
     .btn-play {
-        font-size: 1.8rem; width: 60px; height: 60px;
+        font-size: 1.8rem; width: 64px; height: 64px;
         display: flex; align-items: center; justify-content: center;
         background: var(--text-main); color: var(--bg-color);
         border-radius: 50%; opacity: 1; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-        border: none; cursor: pointer;
+        border: none; cursor: pointer; flex-shrink: 0;
     }
     .btn-play:hover { transform: scale(1.05); }
 
-    .side-ctrls { width: 250px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+    .side-ctrls { width: 200px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+    /* Left side is now empty/spacer on desktop */
+    .side-ctrls.left { justify-content: flex-start; }
     
-    .vol-wrap { display: flex; align-items: center; gap: 8px; width: 100px; }
+    .vol-wrap { display: flex; align-items: center; gap: 8px; width: 160px; /* Wider volume slider on desktop */ }
     input[type=range] {
         -webkit-appearance: none; width: 100%; height: 4px;
         background: var(--border-color); border-radius: 2px; outline: none;
@@ -262,7 +268,16 @@
     }
 
     /* Playlist Specific */
+    .playlist-tabs { display: flex; border-bottom: 1px solid var(--border-color); }
+    .tab-btn { 
+        flex: 1; padding: 12px; background: transparent; border: none; 
+        color: var(--text-sub); cursor: pointer; font-weight: 600; 
+        border-bottom: 2px solid transparent; 
+    }
+    .tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+    
     .playlist-content { flex: 1; overflow-y: auto; padding: 10px; }
+    
     .track-item {
         display: flex; align-items: center; padding: 10px;
         border-radius: 8px; cursor: pointer; margin-bottom: 4px;
@@ -282,6 +297,13 @@
     .track-item:hover .delete-btn { opacity: 1; }
     .delete-btn:hover { color: #ef4444; }
 
+    /* Saved Playlist Item */
+    .saved-list-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer;
+    }
+    .saved-list-item:hover { background: rgba(255,255,255,0.05); }
+    
     /* Search Results Specific */
     .search-input-wrap { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; }
     .search-input { 
@@ -345,7 +367,7 @@
     }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* RWD */
+    /* RWD Optimization */
     @media (max-width: 900px) {
         .app-container { grid-template-columns: 1fr; grid-template-rows: 45% 1fr 140px; padding: 20px; }
         .visual-area { justify-content: flex-end; padding-bottom: 20px; }
@@ -355,6 +377,48 @@
         .main-ctrls { width: 100%; order: 1; margin-bottom: 10px; }
         .side-ctrls { width: 100%; justify-content: space-between; order: 2; }
         .drawer { width: 90%; }
+    }
+
+    /* Mobile Phone Optimization (Optimized Layout) */
+    @media (max-width: 600px) {
+        .app-container {
+            padding: 15px;
+            /* Increased bottom space for 2-row controls */
+            grid-template-rows: 30vh 1fr 180px; 
+        }
+        .visual-area { padding-bottom: 10px; }
+        
+        /* Scale down album art */
+        .album-comp { width: 160px; height: 160px; margin-bottom: 10px; }
+        .track-title { font-size: 1.3rem; }
+        .track-artist { font-size: 0.9rem; }
+        
+        /* Improve lyrics readability */
+        .lyric-line { font-size: 1rem; padding: 8px 0; }
+        .lyric-line.active { font-size: 1.4rem; }
+        
+        /* Controls Layout Optimization for Mobile */
+        .bottom-bar { padding-bottom: 20px; }
+        .controls-row { flex-direction: column; gap: 15px; }
+        
+        /* Hide side controls spacers on mobile */
+        .side-ctrls.left { display: none; }
+        
+        /* Main controls take full width, space evenly */
+        .main-ctrls { 
+            width: 100%; justify-content: space-between; gap: 0; order: 1; 
+            margin-bottom: 0; 
+        }
+        
+        /* Right side controls (List/Settings/Search) move BELOW main controls */
+        .side-ctrls.right { 
+            position: static; width: 100%; justify-content: center; 
+            gap: 30px; order: 2; padding: 0; background: none; backdrop-filter: none;
+        }
+        .vol-wrap { display: none; } /* Hide volume on mobile */
+        
+        .ctrl-btn { font-size: 1.4rem; padding: 15px; }
+        .btn-play { width: 70px; height: 70px; font-size: 2rem; }
     }
   </style>
 </head>
@@ -400,25 +464,26 @@
         </div>
 
         <div class="controls-row">
-            <div class="side-ctrls" style="justify-content:flex-start;">
-                 <button class="ctrl-btn" id="loopBtn" title="循環模式 (L)"><i class="fa-solid fa-repeat"></i></button>
-                 <button class="ctrl-btn" id="shuffleBtn" title="隨機播放 (S)"><i class="fa-solid fa-shuffle"></i></button>
+            <div class="side-ctrls left">
+                 <!-- Spacers for Desktop layout balance -->
             </div>
 
             <div class="main-ctrls">
+                <button class="ctrl-btn" id="loopBtn" title="循環模式"><i class="fa-solid fa-repeat"></i></button>
                 <button class="ctrl-btn" id="prevBtn"><i class="fa-solid fa-backward-step"></i></button>
                 <button class="btn-play" id="playBtn"><i class="fa-solid fa-play" style="margin-left:4px"></i></button>
                 <button class="ctrl-btn" id="nextBtn"><i class="fa-solid fa-forward-step"></i></button>
+                <button class="ctrl-btn" id="shuffleBtn" title="隨機播放"><i class="fa-solid fa-shuffle"></i></button>
             </div>
 
-            <div class="side-ctrls">
+            <div class="side-ctrls right">
                 <div class="vol-wrap">
                     <i class="fa-solid fa-volume-high" id="volIcon" style="font-size:0.9rem;opacity:0.7"></i>
                     <input type="range" id="volSlider" min="0" max="1" step="0.05" value="1">
                 </div>
+                <button class="ctrl-btn" id="searchBtn" title="搜尋歌曲"><i class="fa-solid fa-search"></i></button>
                 <button class="ctrl-btn" id="settingsBtn" title="設定"><i class="fa-solid fa-sliders"></i></button>
                 <button class="ctrl-btn" id="listBtn" title="播放清單"><i class="fa-solid fa-list-ul"></i></button>
-                <button class="ctrl-btn" id="searchBtn" title="搜尋歌曲"><i class="fa-solid fa-search"></i></button>
             </div>
         </div>
     </div>
@@ -430,13 +495,41 @@
   <!-- Playlist Drawer -->
   <div class="drawer" id="playlistDrawer">
       <div class="drawer-header">
-          <span>播放列表</span>
-          <span style="font-size:0.8rem; opacity:0.6;" id="trackCount">0 首</span>
+          <span>音樂庫</span>
+          <i class="fa-solid fa-xmark" id="closeList" style="cursor:pointer"></i>
       </div>
-      <div class="playlist-content" id="playlistContent"></div>
+      
+      <!-- Tabs -->
+      <div class="playlist-tabs">
+          <button class="tab-btn active" id="tabQueue">目前播放 (<span id="trackCount">0</span>)</button>
+          <button class="tab-btn" id="tabLists">我的歌單</button>
+      </div>
+
+      <!-- Current Queue View -->
+      <div class="playlist-content" id="viewQueue">
+          <div id="playlistContent"></div>
+      </div>
+
+      <!-- Saved Lists View -->
+      <div class="playlist-content" id="viewLists" style="display:none;">
+          <div id="savedListsContent" style="padding-top:10px;">
+              <div style="text-align:center; color:var(--text-sub); padding:20px;">
+                  暫無儲存的歌單
+              </div>
+          </div>
+      </div>
+
       <div class="drawer-footer">
-          <button class="action-btn secondary" id="clearBtn" title="清空"><i class="fa-solid fa-trash"></i></button>
-          <button class="action-btn" id="addBtn"><i class="fa-solid fa-plus"></i> 添加歌曲</button>
+          <!-- Queue Footer -->
+          <div id="footerQueue" style="display:flex; width:100%; gap:10px;">
+              <button class="action-btn secondary" id="clearBtn" title="清空"><i class="fa-solid fa-trash"></i></button>
+              <button class="action-btn secondary" id="saveQueueBtn" title="儲存為歌單"><i class="fa-regular fa-floppy-disk"></i></button>
+              <button class="action-btn" id="addBtn"><i class="fa-solid fa-plus"></i> 添加</button>
+          </div>
+          <!-- Lists Footer -->
+          <div id="footerLists" style="display:none; width:100%; gap:10px;">
+              <div style="font-size:0.8rem; color:var(--text-sub); text-align:center; width:100%;">點擊歌單載入</div>
+          </div>
       </div>
   </div>
 
@@ -552,16 +645,22 @@
     // --- IndexedDB ---
     const DB_NAME = "immersive-player-pro";
     const dbPromise = new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, 6); // Keep Version 6
+        const req = indexedDB.open(DB_NAME, 7); // Increment Version for playlists
         req.onupgradeneeded = (e) => {
             const db = e.target.result;
             if (!db.objectStoreNames.contains('tracks')) db.createObjectStore('tracks', { keyPath: 'id' });
             if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
             if (!db.objectStoreNames.contains('lyrics_cache')) db.createObjectStore('lyrics_cache', { keyPath: 'id' });
+            if (!db.objectStoreNames.contains('playlists')) db.createObjectStore('playlists', { keyPath: 'id' }); // New Store
         };
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
     });
+
+    // --- Web Audio API ---
+    function initAudioContext() {
+        // Disabled for now to prevent CORS issues with remote tracks
+    }
 
     // --- Init ---
     window.addEventListener('DOMContentLoaded', async () => {
@@ -598,6 +697,23 @@
             } else {
                 db.transaction('tracks', 'readwrite').objectStore('tracks').clear();
             }
+        }
+        
+        // Setup Media Session Actions
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => { 
+                if(audio.paused) { audio.play(); updatePlayState(true); } 
+            });
+            navigator.mediaSession.setActionHandler('pause', () => { 
+                if(!audio.paused) { audio.pause(); updatePlayState(false); } 
+            });
+            navigator.mediaSession.setActionHandler('previoustrack', () => changeTrack(-1));
+            navigator.mediaSession.setActionHandler('nexttrack', () => changeTrack(1));
+            navigator.mediaSession.setActionHandler('seekto', (details) => {
+                if (details.seekTime && !isNaN(details.seekTime)) {
+                    audio.currentTime = details.seekTime;
+                }
+            });
         }
     });
 
@@ -760,25 +876,19 @@
         };
 
         const db = await dbPromise;
-        // Check if exists? Maybe allow duplicates or update
         await db.transaction('tracks', 'readwrite').objectStore('tracks').put(track);
         
-        // Cache Lyrics immediately
         if(info.lyrics) {
             const lyricId = track.title + track.artist;
             await db.transaction('lyrics_cache', 'readwrite').objectStore('lyrics_cache').put({ id: lyricId, text: info.lyrics });
         }
 
-        // Add to playlist
         playlist.push(track);
         $('emptyState').classList.add('hidden');
         renderPlaylist();
         
-        // Play it
         loadTrack(playlist.length - 1, true);
         showToast(`已加入: ${track.title}`);
-        
-        // Close search drawer
         toggleDrawer('searchDrawer', false);
     }
 
@@ -791,9 +901,7 @@
         currentIndex = index;
         const track = playlist[index];
         
-        // CRITICAL FIX: DO NOT use AudioContext for remote files to avoid CORS silence
-        // We rely on standard HTML5 Audio behavior which works perfectly for playback
-        audio.removeAttribute('crossorigin'); // Ensure no crossorigin attribute for remote files
+        audio.removeAttribute('crossorigin'); 
 
         audio.src = track.url;
         audio.playbackRate = parseFloat($('speedSelect').value);
@@ -801,7 +909,6 @@
         $('trackTitle').textContent = track.title;
         $('trackArtist').textContent = track.artist;
         
-        // HANDLE IMAGE: Check for Remote URL vs Local Blob
         let img = '';
         if(track.isRemote) {
             img = track.picture;
@@ -816,6 +923,16 @@
         if(img) $('bgLayer').style.backgroundImage = `url('${img}')`;
         else $('bgLayer').style.backgroundImage = 'none';
         
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: track.title,
+                artist: track.artist,
+                artwork: [
+                    { src: img || 'https://via.placeholder.com/512?text=Music', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+        }
+
         renderPlaylist();
         loadLyrics(track); 
         
@@ -826,7 +943,6 @@
             } catch(e) { 
                 console.error("Playback error:", e);
                 updatePlayState(false); 
-                // Only show toast if it's not the initial auto-load blocking
                 if (e.name !== "NotAllowedError") {
                     showToast("播放失敗: " + e.message);
                 }
@@ -840,10 +956,12 @@
             btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
             btn.querySelector('i').style.marginLeft = '0';
             albumComp.classList.add('playing');
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
             startAnimationLoop();
         } else {
             btn.innerHTML = '<i class="fa-solid fa-play" style="margin-left:4px"></i>';
             albumComp.classList.remove('playing');
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
             stopAnimationLoop();
         }
     }
@@ -859,7 +977,6 @@
         
         wrapper.innerHTML = '<div class="lyric-line" style="opacity:0.5">搜尋歌詞...</div>';
 
-        // 1. Check Cache (Priority)
         const cached = await new Promise(res => {
             db.transaction('lyrics_cache').objectStore('lyrics_cache').get(id).onsuccess = e => res(e.target.result);
         });
@@ -869,7 +986,6 @@
             return;
         }
 
-        // 2. Fetch Online (LRCLib) - Only if not found in cache
         try {
             const clean = s => encodeURIComponent(s.trim().replace(/\(.*\)/g, '')); 
             const res = await fetch(`https://lrclib.net/api/search?track_name=${clean(track.title)}&artist_name=${clean(track.artist)}`);
@@ -885,7 +1001,6 @@
             }
         } catch(e) { console.warn(e); }
 
-        // 3. Fallback
         if(currentIndex !== -1 && playlist[currentIndex] === track) {
              wrapper.innerHTML = '<div class="lyric-line" style="opacity:0.5">無歌詞 (可拖入 LRC 檔案)</div>';
         }
@@ -903,7 +1018,6 @@
             line = line.trim();
             if(!line) return;
             
-            // Check for Enhanced (KTV)
             if(line.includes('<') && line.includes('>')) {
                 const words = [];
                 let match;
@@ -923,7 +1037,6 @@
                     lyricsData.push({ time: firstTime, type: 'enhanced', words });
                 }
             } 
-            // Check for Standard
             else {
                 const match = line.match(regex);
                 if(match) {
@@ -937,11 +1050,8 @@
             }
         });
 
-        // Handle Static Lyrics
         if(!hasTimestamps && text.trim().length > 0) {
-            lyricsData = lines
-                .filter(l => l.trim())
-                .map((l, i) => ({ time: i, type: 'static', text: l })); 
+            lyricsData = lines.filter(l => l.trim()).map((l, i) => ({ time: i, type: 'static', text: l })); 
         }
         
         if(hasTimestamps) {
@@ -970,7 +1080,6 @@
         }).join('');
     }
 
-    // Click Lyrics to Seek
     $('lyricsWrapper').addEventListener('click', (e) => {
         const line = e.target.closest('.lyric-line');
         if(line && line.dataset.idx && !line.classList.contains('static')) {
@@ -983,7 +1092,7 @@
         }
     });
 
-    // --- High Performance Animation Loop (KTV Effect) ---
+    // --- Animation Loop ---
     function startAnimationLoop() {
         if(animationFrameId) cancelAnimationFrame(animationFrameId);
         function loop() {
@@ -1239,10 +1348,10 @@
         });
     }
 
-    // --- Playlist UI & Others ---
+    // --- Playlist UI & Management ---
     function renderPlaylist() {
         const list = $('playlistContent');
-        $('trackCount').textContent = `${playlist.length} 首`;
+        $('trackCount').textContent = `${playlist.length}`;
         list.innerHTML = '';
         
         playlist.forEach((track, idx) => {
@@ -1266,33 +1375,134 @@
                 else if(!e.target.closest('.drag-handle')) loadTrack(idx);
             });
 
-            item.addEventListener('dragstart', (e) => {
-                draggedItem = idx;
-                e.dataTransfer.effectAllowed = 'move';
-                item.style.opacity = '0.5';
-            });
-            item.addEventListener('dragend', () => {
-                item.style.opacity = '1';
-                draggedItem = null;
-                document.querySelectorAll('.track-item').forEach(i => i.style.borderTop = 'none');
-            });
-            item.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                item.style.borderTop = '2px solid var(--accent-color)';
-            });
-            item.addEventListener('drop', (e) => {
-                e.preventDefault();
-                if(draggedItem !== null && draggedItem !== idx) moveTrack(draggedItem, idx);
-            });
+            // Drag Events (unchanged)
+            item.addEventListener('dragstart', (e) => { draggedItem = idx; e.dataTransfer.effectAllowed = 'move'; item.style.opacity = '0.5'; });
+            item.addEventListener('dragend', () => { item.style.opacity = '1'; draggedItem = null; document.querySelectorAll('.track-item').forEach(i => i.style.borderTop = 'none'); });
+            item.addEventListener('dragover', (e) => { e.preventDefault(); item.style.borderTop = '2px solid var(--accent-color)'; });
+            item.addEventListener('drop', (e) => { e.preventDefault(); if(draggedItem !== null && draggedItem !== idx) moveTrack(draggedItem, idx); });
+            
             list.appendChild(item);
         });
+    }
+
+    // Playlist Tabs Logic
+    $('tabQueue').addEventListener('click', () => switchPlaylistTab('queue'));
+    $('tabLists').addEventListener('click', () => switchPlaylistTab('lists'));
+
+    function switchPlaylistTab(tab) {
+        if(tab === 'queue') {
+            $('tabQueue').classList.add('active'); $('tabLists').classList.remove('active');
+            $('viewQueue').style.display = 'block'; $('viewLists').style.display = 'none';
+            $('footerQueue').style.display = 'flex'; $('footerLists').style.display = 'none';
+        } else {
+            $('tabQueue').classList.remove('active'); $('tabLists').classList.add('active');
+            $('viewQueue').style.display = 'none'; $('viewLists').style.display = 'block';
+            $('footerQueue').style.display = 'none'; $('footerLists').style.display = 'flex';
+            loadSavedPlaylists();
+        }
+    }
+
+    $('saveQueueBtn').addEventListener('click', async () => {
+        if(playlist.length === 0) { showToast("播放清單為空"); return; }
+        const name = prompt("請輸入歌單名稱:", "新歌單 " + new Date().toLocaleDateString());
+        if(name) {
+            const db = await dbPromise;
+            // Only store track IDs to save space
+            const trackIds = playlist.map(t => t.id);
+            const listObj = { id: crypto.randomUUID(), name, trackIds, createdAt: Date.now() };
+            await db.transaction('playlists', 'readwrite').objectStore('playlists').add(listObj);
+            showToast("歌單已儲存");
+            if($('tabLists').classList.contains('active')) loadSavedPlaylists();
+        }
+    });
+
+    async function loadSavedPlaylists() {
+        const db = await dbPromise;
+        const lists = await new Promise(res => {
+            db.transaction('playlists', 'readonly').objectStore('playlists').getAll().onsuccess = e => res(e.target.result);
+        });
+        
+        const container = $('savedListsContent');
+        container.innerHTML = '';
+        
+        if(lists.length === 0) {
+            container.innerHTML = '<div style="text-align:center; color:var(--text-sub); padding:20px;">暫無儲存的歌單</div>';
+            return;
+        }
+
+        lists.forEach(list => {
+            const div = document.createElement('div');
+            div.className = 'saved-list-item';
+            div.innerHTML = `
+                <div>
+                    <div style="font-weight:600;">${list.name}</div>
+                    <div style="font-size:0.8rem; color:var(--text-sub);">${list.trackIds.length} 首歌曲</div>
+                </div>
+                <div class="delete-list-btn" style="padding:10px; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></div>
+            `;
+            
+            div.addEventListener('click', (e) => {
+                if(e.target.closest('.delete-list-btn')) {
+                    if(confirm(`刪除歌單 "${list.name}"?`)) {
+                        deletePlaylist(list.id);
+                    }
+                } else {
+                    loadPlaylistIntoQueue(list.trackIds);
+                }
+            });
+            container.appendChild(div);
+        });
+    }
+
+    async function deletePlaylist(id) {
+        const db = await dbPromise;
+        await db.transaction('playlists', 'readwrite').objectStore('playlists').delete(id);
+        loadSavedPlaylists();
+        showToast("歌單已刪除");
+    }
+
+    async function loadPlaylistIntoQueue(trackIds) {
+        if(!confirm("這將會覆蓋目前的播放清單，確定嗎？")) return;
+        
+        const db = await dbPromise;
+        const allTracks = await new Promise(res => {
+            db.transaction('tracks', 'readonly').objectStore('tracks').getAll().onsuccess = e => res(e.target.result);
+        });
+        
+        // Filter and reconstruct
+        const newQueue = [];
+        trackIds.forEach(tid => {
+            const found = allTracks.find(t => t.id === tid);
+            if(found) {
+                let url = '';
+                if(found.isRemote) url = found.url;
+                else if(found.blob instanceof Blob) url = URL.createObjectURL(found.blob);
+                if(url) newQueue.push({ ...found, url });
+            }
+        });
+        
+        if(newQueue.length > 0) {
+            playlist = newQueue;
+            renderPlaylist();
+            loadTrack(0, true);
+            switchPlaylistTab('queue');
+            showToast(`已載入 ${newQueue.length} 首歌曲`);
+        } else {
+            showToast("歌單中的歌曲檔案可能已遺失");
+        }
     }
 
     async function removeTrack(index) {
         const track = playlist[index];
         playlist.splice(index, 1);
-        const db = await dbPromise;
-        db.transaction('tracks', 'readwrite').objectStore('tracks').delete(track.id);
+        // Note: Removing from current queue does NOT delete from 'tracks' store anymore strictly, 
+        // to allow playlists to reuse tracks. But for simplicity in this version, we act as queue manager.
+        // If we want to truly delete file from DB, we need a separate "Library" view.
+        // For now, we assume queue manipulation doesn't delete files unless "Clear" is hit or user wants to.
+        // Let's keep existing behavior: delete from DB if removed from queue (Standard simple player behavior)
+        // BUT if we have playlists, we shouldn't delete from DB if used elsewhere.
+        // SAFE approach: Don't delete from DB here, just remove from playlist array.
+        // db.transaction('tracks', 'readwrite').objectStore('tracks').delete(track.id); <--- Removed for safety with playlists
         
         if(playlist.length === 0) {
             $('emptyState').classList.remove('hidden');
@@ -1318,12 +1528,15 @@
     }
 
     $('clearBtn').addEventListener('click', async () => {
-        if(!confirm('確定清空播放列表?')) return;
+        if(!confirm('確定清空播放列表? (不會刪除已儲存的歌單)')) return;
         playlist = [];
-        const db = await dbPromise;
-        db.transaction('tracks', 'readwrite').objectStore('tracks').clear();
+        // Only clear current queue visualization, not DB tracks to preserve for playlists
+        // If user really wants to wipe DB, maybe settings option?
+        // For now, let's keep it safe.
         $('emptyState').classList.remove('hidden');
-        location.reload();
+        renderPlaylist();
+        audio.pause();
+        // location.reload(); // No reload needed
     });
 
     // --- Utils ---
@@ -1338,6 +1551,7 @@
     $('closeSettings').addEventListener('click', () => toggleDrawer('settingsDrawer', false));
     $('searchBtn').addEventListener('click', () => toggleDrawer('searchDrawer', true));
     $('closeSearch').addEventListener('click', () => toggleDrawer('searchDrawer', false));
+    $('closeList').addEventListener('click', () => toggleDrawer('playlistDrawer', false));
     
     $('drawerMask').addEventListener('click', () => { 
         toggleDrawer('playlistDrawer', false); 
@@ -1361,7 +1575,6 @@
 
     $('volSlider').addEventListener('input', (e) => {
         const val = parseFloat(e.target.value);
-        // Direct volume control
         audio.volume = val;
         $('volIcon').className = val === 0 ? 'fa-solid fa-volume-xmark' : val < 0.5 ? 'fa-solid fa-volume-low' : 'fa-solid fa-volume-high';
     });
