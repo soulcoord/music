@@ -725,6 +725,52 @@
         audio.addEventListener('seeked', updateMediaSessionPosition);
         audio.addEventListener('ratechange', updateMediaSessionPosition);
         audio.addEventListener('durationchange', updateMediaSessionPosition);
+        
+        // Use timeupdate to update Media Session lyrics/metadata while in background
+        audio.addEventListener('timeupdate', () => {
+            const t = audio.currentTime;
+            const d = audio.duration || 0;
+            if(!isDragging && d) {
+                const pct = (t / d) * 100;
+                $('progressFill').style.width = `${pct}%`;
+                $('currTime').textContent = fmtTime(t);
+                $('totTime').textContent = fmtTime(d);
+            }
+
+            // NEW: Background-compatible Lyric Updates via timeupdate
+            if ('mediaSession' in navigator && lyricsData.length > 0 && lyricsData[0].type !== 'static') {
+                let activeIdx = -1;
+                // Simple loop is efficient enough for timeupdate event
+                for(let i = 0; i < lyricsData.length; i++) {
+                    if(t >= lyricsData[i].time) activeIdx = i;
+                    else break;
+                }
+                
+                if (activeIdx !== -1 && lyricsData[activeIdx]) {
+                    // Extract text content
+                    let lineText = '';
+                    if (lyricsData[activeIdx].type === 'enhanced') {
+                        lineText = lyricsData[activeIdx].words.map(w => w.text).join('');
+                    } else {
+                        lineText = lyricsData[activeIdx].text;
+                    }
+
+                    // Only update metadata if text has actually changed to save performance
+                    if (currentLineText !== lineText) {
+                        currentLineText = lineText;
+                        const track = playlist[currentIndex];
+                        navigator.mediaSession.metadata = new MediaMetadata({
+                            title: track.title,
+                            // Use lyric line as artist, fallback to real artist
+                            artist: lineText || track.artist, 
+                            artwork: [
+                                { src: currentImgUrl || 'https://via.placeholder.com/512?text=Music', sizes: '512x512', type: 'image/png' }
+                            ]
+                        });
+                    }
+                }
+            }
+        });
     });
 
     function updateMediaSessionPosition() {
@@ -1143,31 +1189,6 @@
             else break;
         }
 
-        // Update Media Session Metadata with Lyrics
-        if (activeIdx !== -1 && lyricsData[activeIdx]) {
-            // Get text, handle both enhanced and standard lyric structures
-            let lineText = '';
-            if (lyricsData[activeIdx].type === 'enhanced') {
-                lineText = lyricsData[activeIdx].words.map(w => w.text).join('');
-            } else {
-                lineText = lyricsData[activeIdx].text;
-            }
-
-            if (currentLineText !== lineText) {
-                currentLineText = lineText;
-                if ('mediaSession' in navigator) {
-                    const track = playlist[currentIndex];
-                    navigator.mediaSession.metadata = new MediaMetadata({
-                        title: track.title,
-                        artist: lineText || track.artist, // Fallback to artist if empty line
-                        artwork: [
-                            { src: currentImgUrl || 'https://via.placeholder.com/512?text=Music', sizes: '512x512', type: 'image/png' }
-                        ]
-                    });
-                }
-            }
-        }
-
         const domLines = document.querySelectorAll('.lyric-line');
         
         if(activeIdx !== -1 && domLines[activeIdx]) {
@@ -1197,17 +1218,6 @@
             }
         }
     }
-
-    audio.addEventListener('timeupdate', () => {
-        const t = audio.currentTime;
-        const d = audio.duration || 0;
-        if(!isDragging && d) {
-            const pct = (t / d) * 100;
-            $('progressFill').style.width = `${pct}%`;
-            $('currTime').textContent = fmtTime(t);
-            $('totTime').textContent = fmtTime(d);
-        }
-    });
 
     // --- Controls Logic ---
     $('playBtn').addEventListener('click', () => {
