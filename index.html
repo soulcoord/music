@@ -641,6 +641,8 @@
     let isDragging = false;
     let draggedItem = null;
     let animationFrameId = null; // For smooth KTV loop
+    let currentLineText = "";
+    let currentImgUrl = "";
 
     // --- IndexedDB ---
     const DB_NAME = "immersive-player-pro";
@@ -712,10 +714,30 @@
             navigator.mediaSession.setActionHandler('seekto', (details) => {
                 if (details.seekTime && !isNaN(details.seekTime)) {
                     audio.currentTime = details.seekTime;
+                    updateMediaSessionPosition();
                 }
             });
         }
+        
+        // Setup Audio Events for Media Session Position
+        audio.addEventListener('play', updateMediaSessionPosition);
+        audio.addEventListener('pause', updateMediaSessionPosition);
+        audio.addEventListener('seeked', updateMediaSessionPosition);
+        audio.addEventListener('ratechange', updateMediaSessionPosition);
+        audio.addEventListener('durationchange', updateMediaSessionPosition);
     });
+
+    function updateMediaSessionPosition() {
+        if ('mediaSession' in navigator && audio.duration && !isNaN(audio.duration)) {
+            try {
+                navigator.mediaSession.setPositionState({
+                    duration: audio.duration,
+                    playbackRate: audio.playbackRate,
+                    position: audio.currentTime
+                });
+            } catch(e) { console.warn("Media Session position update failed", e); }
+        }
+    }
 
     async function getSetting(db, key) {
         return new Promise(resolve => {
@@ -909,26 +931,29 @@
         $('trackTitle').textContent = track.title;
         $('trackArtist').textContent = track.artist;
         
-        let img = '';
+        // Use global variable to store current image URL for reuse in updateVisuals
+        currentImgUrl = '';
         if(track.isRemote) {
-            img = track.picture;
+            currentImgUrl = track.picture;
         } else if(track.picture && track.picture instanceof Blob) {
-            try { img = URL.createObjectURL(track.picture); } catch(e) {}
+            try { currentImgUrl = URL.createObjectURL(track.picture); } catch(e) {}
         }
 
-        $('vinylArt').style.backgroundImage = img ? `url('${img}')` : 'none';
-        $('albumCover').style.backgroundImage = img ? `url('${img}')` : 'none';
-        $('albumCover').style.backgroundColor = img ? 'transparent' : '#333';
+        $('vinylArt').style.backgroundImage = currentImgUrl ? `url('${currentImgUrl}')` : 'none';
+        $('albumCover').style.backgroundImage = currentImgUrl ? `url('${currentImgUrl}')` : 'none';
+        $('albumCover').style.backgroundColor = currentImgUrl ? 'transparent' : '#333';
         
-        if(img) $('bgLayer').style.backgroundImage = `url('${img}')`;
+        if(currentImgUrl) $('bgLayer').style.backgroundImage = `url('${currentImgUrl}')`;
         else $('bgLayer').style.backgroundImage = 'none';
         
+        currentLineText = track.artist; // Reset fallback artist
+
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: track.title,
-                artist: track.artist,
+                artist: track.artist, // Initial artist name
                 artwork: [
-                    { src: img || 'https://via.placeholder.com/512?text=Music', sizes: '512x512', type: 'image/png' }
+                    { src: currentImgUrl || 'https://via.placeholder.com/512?text=Music', sizes: '512x512', type: 'image/png' }
                 ]
             });
         }
@@ -1116,6 +1141,31 @@
         for(let i = 0; i < lyricsData.length; i++) {
             if(t >= lyricsData[i].time) activeIdx = i;
             else break;
+        }
+
+        // Update Media Session Metadata with Lyrics
+        if (activeIdx !== -1 && lyricsData[activeIdx]) {
+            // Get text, handle both enhanced and standard lyric structures
+            let lineText = '';
+            if (lyricsData[activeIdx].type === 'enhanced') {
+                lineText = lyricsData[activeIdx].words.map(w => w.text).join('');
+            } else {
+                lineText = lyricsData[activeIdx].text;
+            }
+
+            if (currentLineText !== lineText) {
+                currentLineText = lineText;
+                if ('mediaSession' in navigator) {
+                    const track = playlist[currentIndex];
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: track.title,
+                        artist: lineText || track.artist, // Fallback to artist if empty line
+                        artwork: [
+                            { src: currentImgUrl || 'https://via.placeholder.com/512?text=Music', sizes: '512x512', type: 'image/png' }
+                        ]
+                    });
+                }
+            }
         }
 
         const domLines = document.querySelectorAll('.lyric-line');
