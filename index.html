@@ -834,11 +834,13 @@
             div.className = 'search-result-item';
             div.innerHTML = `
                 <div>
-                    <div style="font-weight:bold; font-size:0.9rem;">${item.title}</div>
-                    <div style="font-size:0.8rem; color:var(--text-sub);">${item.singer}</div>
+                    <div class="result-title" style="font-weight:bold; font-size:0.9rem;"></div>
+                    <div class="result-singer" style="font-size:0.8rem; color:var(--text-sub);"></div>
                 </div>
                 <button class="add-track-btn">播放</button>
             `;
+            div.querySelector('.result-title').textContent = item.title;
+            div.querySelector('.result-singer').textContent = item.singer;
             div.querySelector('button').addEventListener('click', () => addRemoteTrack(item.playPage));
             $('searchResults').appendChild(div);
         });
@@ -1089,20 +1091,36 @@
 
     function renderLyricsDOM() {
         const wrapper = $('lyricsWrapper');
-        if(!lyricsData.length) { wrapper.innerHTML = '<div class="lyric-line" style="opacity:0.5">純音樂</div>'; return; }
+        wrapper.innerHTML = '';
+        if(!lyricsData.length) {
+            const div = document.createElement('div');
+            div.className = 'lyric-line';
+            div.style.opacity = '0.5';
+            div.textContent = '純音樂';
+            wrapper.appendChild(div);
+            return;
+        }
         
-        wrapper.innerHTML = lyricsData.map((l, i) => {
+        lyricsData.forEach((l, i) => {
+            const lineDiv = document.createElement('div');
+            lineDiv.className = 'lyric-line';
+            lineDiv.dataset.idx = i;
+
             if(l.type === 'enhanced') {
-                const html = l.words.map((w) => 
-                    `<span class="lyric-char" data-start="${w.time}" data-dur="${w.duration}">${w.text}</span>`
-                ).join('');
-                return `<div class="lyric-line" data-idx="${i}">${html}</div>`;
-            } else if(l.type === 'static') {
-                return `<div class="lyric-line static" data-idx="${i}">${l.text}</div>`;
+                l.words.forEach(w => {
+                    const span = document.createElement('span');
+                    span.className = 'lyric-char';
+                    span.dataset.start = w.time;
+                    span.dataset.dur = w.duration;
+                    span.textContent = w.text;
+                    lineDiv.appendChild(span);
+                });
             } else {
-                return `<div class="lyric-line" data-idx="${i}">${l.text}</div>`;
+                if(l.type === 'static') lineDiv.classList.add('static');
+                lineDiv.textContent = l.text;
             }
-        }).join('');
+            wrapper.appendChild(lineDiv);
+        });
     }
 
     $('lyricsWrapper').addEventListener('click', (e) => {
@@ -1413,12 +1431,17 @@
             item.innerHTML = `
                 <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                 <div class="item-info">
-                    <div class="item-title">${track.title}</div>
-                    <div class="item-artist">${track.artist}</div>
+                    <div class="item-title"></div>
+                    <div class="item-artist"></div>
                 </div>
-                ${idx === currentIndex ? '<i class="fa-solid fa-volume-high" style="color:var(--accent-color); margin-right:10px"></i>' : ''}
+                <span class="playing-icon"></span>
                 <div class="delete-btn"><i class="fa-solid fa-xmark"></i></div>
             `;
+            item.querySelector('.item-title').textContent = track.title;
+            item.querySelector('.item-artist').textContent = track.artist;
+            if (idx === currentIndex) {
+                item.querySelector('.playing-icon').innerHTML = '<i class="fa-solid fa-volume-high" style="color:var(--accent-color); margin-right:10px"></i>';
+            }
 
             item.addEventListener('click', (e) => {
                 if(e.target.closest('.delete-btn')) removeTrack(idx);
@@ -1485,11 +1508,13 @@
             div.className = 'saved-list-item';
             div.innerHTML = `
                 <div>
-                    <div style="font-weight:600;">${list.name}</div>
-                    <div style="font-size:0.8rem; color:var(--text-sub);">${list.trackIds.length} 首歌曲</div>
+                    <div class="list-name" style="font-weight:600;"></div>
+                    <div class="list-count" style="font-size:0.8rem; color:var(--text-sub);"></div>
                 </div>
                 <div class="delete-list-btn" style="padding:10px; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></div>
             `;
+            div.querySelector('.list-name').textContent = list.name;
+            div.querySelector('.list-count').textContent = `${list.trackIds.length} 首歌曲`;
             
             div.addEventListener('click', (e) => {
                 if(e.target.closest('.delete-list-btn')) {
@@ -1653,7 +1678,8 @@
     function showToast(msg) {
         const t = document.createElement('div');
         t.className = 'toast';
-        t.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+        t.innerHTML = '<i class="fa-solid fa-circle-info"></i> <span class="toast-msg"></span>';
+        t.querySelector('.toast-msg').textContent = msg;
         $('toastArea').appendChild(t);
         setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; setTimeout(() => t.remove(), 300); }, 3000);
     }
