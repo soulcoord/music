@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <!-- OpenCC for Traditional/Simplified conversion -->
   <script src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"></script>
+  <script src="lyrics-parser.js"></script>
   
   <style>
     :root {
@@ -1032,59 +1033,9 @@
     }
 
     function parseLyrics(text) {
-        if(!text) return;
-        const lines = text.split('\n');
-        lyricsData = [];
-        const regex = /^\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
-        const enhancedRegex = /<(\d{2}):(\d{2})\.(\d{2,3})>([^<]*)/g;
-        let hasTimestamps = false;
-
-        lines.forEach(line => {
-            line = line.trim();
-            if(!line) return;
-            
-            if(line.includes('<') && line.includes('>')) {
-                const words = [];
-                let match;
-                let firstTime = null;
-                while ((match = enhancedRegex.exec(line)) !== null) {
-                    const t = parseInt(match[1])*60 + parseInt(match[2]) + parseInt(match[3].padEnd(3,'0'))/1000;
-                    if(firstTime === null) firstTime = t;
-                    words.push({ time: t, text: match[4] });
-                }
-                
-                if(words.length) {
-                    hasTimestamps = true;
-                    for(let i=0; i<words.length-1; i++) {
-                        words[i].duration = words[i+1].time - words[i].time;
-                    }
-                    words[words.length-1].duration = 0.5; 
-                    lyricsData.push({ time: firstTime, type: 'enhanced', words });
-                }
-            } 
-            else {
-                const match = line.match(regex);
-                if(match) {
-                    hasTimestamps = true;
-                    const t = parseInt(match[1])*60 + parseInt(match[2]) + parseInt(match[3].padEnd(3,'0'))/1000;
-                    const content = match[4].trim();
-                    if(content) {
-                        lyricsData.push({ time: t, type: 'standard', text: content });
-                    }
-                }
-            }
-        });
-
-        if(!hasTimestamps && text.trim().length > 0) {
-            lyricsData = lines.filter(l => l.trim()).map((l, i) => ({ time: i, type: 'static', text: l })); 
-        }
-        
-        if(hasTimestamps) {
-            lyricsData.sort((a,b) => a.time - b.time);
-        }
-
+        lyricsData = parseLyricsText(text);
         renderLyricsDOM();
-        $('lrcTextInput').value = text;
+        $('lrcTextInput').value = text || '';
     }
 
     function renderLyricsDOM() {
