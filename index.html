@@ -638,6 +638,12 @@
   <script>
     // --- Core & Config ---
     const $ = id => document.getElementById(id);
+    const escapeHTML = str => {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
     const proxy = "https://cors-anywhere.herokuapp.com/"; // CORS Proxy for Search
     
     // State
@@ -845,8 +851,8 @@
             div.className = 'search-result-item';
             div.innerHTML = `
                 <div>
-                    <div style="font-weight:bold; font-size:0.9rem;">${item.title}</div>
-                    <div style="font-size:0.8rem; color:var(--text-sub);">${item.singer}</div>
+                    <div style="font-weight:bold; font-size:0.9rem;">${escapeHTML(item.title)}</div>
+                    <div style="font-size:0.8rem; color:var(--text-sub);">${escapeHTML(item.singer)}</div>
                 </div>
                 <button class="add-track-btn">播放</button>
             `;
@@ -1060,13 +1066,13 @@
         wrapper.innerHTML = lyricsData.map((l, i) => {
             if(l.type === 'enhanced') {
                 const html = l.words.map((w) => 
-                    `<span class="lyric-char" data-start="${w.time}" data-dur="${w.duration}">${w.text}</span>`
+                    `<span class="lyric-char" data-start="${w.time}" data-dur="${w.duration}">${escapeHTML(w.text)}</span>`
                 ).join('');
                 return `<div class="lyric-line" data-idx="${i}">${html}</div>`;
             } else if(l.type === 'static') {
-                return `<div class="lyric-line static" data-idx="${i}">${l.text}</div>`;
+                return `<div class="lyric-line static" data-idx="${i}">${escapeHTML(l.text)}</div>`;
             } else {
-                return `<div class="lyric-line" data-idx="${i}">${l.text}</div>`;
+                return `<div class="lyric-line" data-idx="${i}">${escapeHTML(l.text)}</div>`;
             }
         }).join('');
 
@@ -1389,8 +1395,8 @@
             item.innerHTML = `
                 <div class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></div>
                 <div class="item-info">
-                    <div class="item-title">${track.title}</div>
-                    <div class="item-artist">${track.artist}</div>
+                    <div class="item-title">${escapeHTML(track.title)}</div>
+                    <div class="item-artist">${escapeHTML(track.artist)}</div>
                 </div>
                 ${idx === currentIndex ? '<i class="fa-solid fa-volume-high" style="color:var(--accent-color); margin-right:10px"></i>' : ''}
                 <div class="delete-btn"><i class="fa-solid fa-xmark"></i></div>
@@ -1461,7 +1467,7 @@
             div.className = 'saved-list-item';
             div.innerHTML = `
                 <div>
-                    <div style="font-weight:600;">${list.name}</div>
+                    <div style="font-weight:600;">${escapeHTML(list.name)}</div>
                     <div style="font-size:0.8rem; color:var(--text-sub);">${list.trackIds.length} 首歌曲</div>
                 </div>
                 <div class="delete-list-btn" style="padding:10px; color:var(--text-sub);"><i class="fa-solid fa-trash"></i></div>
@@ -1647,7 +1653,7 @@
     function showToast(msg) {
         const t = document.createElement('div');
         t.className = 'toast';
-        t.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${msg}`;
+        t.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${escapeHTML(msg)}`;
         $('toastArea').appendChild(t);
         setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(20px)'; setTimeout(() => t.remove(), 300); }, 3000);
     }
