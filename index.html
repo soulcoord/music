@@ -634,6 +634,7 @@
     let playlist = [];
     let currentIndex = -1;
     let lyricsData = [];
+    let cachedDomLines = [];
     let loopMode = 0; 
     let shuffleMode = false;
     // REMOVED AudioContext variables to prevent CORS muting issues
@@ -995,6 +996,7 @@
     async function loadLyrics(track) {
         const wrapper = $('lyricsWrapper');
         lyricsData = [];
+        cachedDomLines = [];
         $('lrcTextInput').value = '';
         
         const db = await dbPromise;
@@ -1089,7 +1091,11 @@
 
     function renderLyricsDOM() {
         const wrapper = $('lyricsWrapper');
-        if(!lyricsData.length) { wrapper.innerHTML = '<div class="lyric-line" style="opacity:0.5">純音樂</div>'; return; }
+        if(!lyricsData.length) {
+            wrapper.innerHTML = '<div class="lyric-line" style="opacity:0.5">純音樂</div>';
+            cachedDomLines = [];
+            return;
+        }
         
         wrapper.innerHTML = lyricsData.map((l, i) => {
             if(l.type === 'enhanced') {
@@ -1103,6 +1109,15 @@
                 return `<div class="lyric-line" data-idx="${i}">${l.text}</div>`;
             }
         }).join('');
+
+        cachedDomLines = Array.from(wrapper.querySelectorAll('.lyric-line')).map(line => ({
+            element: line,
+            chars: Array.from(line.querySelectorAll('.lyric-char')).map(char => ({
+                element: char,
+                start: parseFloat(char.dataset.start),
+                dur: parseFloat(char.dataset.dur)
+            }))
+        }));
     }
 
     $('lyricsWrapper').addEventListener('click', (e) => {
@@ -1168,10 +1183,9 @@
             }
         }
 
-        const domLines = document.querySelectorAll('.lyric-line');
-        
-        if(activeIdx !== -1 && domLines[activeIdx]) {
-            const activeLine = domLines[activeIdx];
+        if(activeIdx !== -1 && cachedDomLines[activeIdx]) {
+            const lineObj = cachedDomLines[activeIdx];
+            const activeLine = lineObj.element;
             
             if(!activeLine.classList.contains('active')) {
                 document.querySelectorAll('.lyric-line.active').forEach(l => l.classList.remove('active'));
@@ -1179,11 +1193,13 @@
                 activeLine.scrollIntoView({ behavior: "smooth", block: "center" });
             }
 
-            const chars = activeLine.querySelectorAll('.lyric-char');
+            const chars = lineObj.chars;
             if(chars.length > 0) {
-                for(let char of chars) {
-                    const start = parseFloat(char.dataset.start);
-                    const dur = parseFloat(char.dataset.dur);
+                for(let i = 0; i < chars.length; i++) {
+                    const charObj = chars[i];
+                    const char = charObj.element;
+                    const start = charObj.start;
+                    const dur = charObj.dur;
                     
                     if(t <= start) {
                         char.style.setProperty('--prog', '0%');
