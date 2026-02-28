@@ -21,7 +21,7 @@
       --bg-panel: rgba(18, 18, 22, 0.85);
       --text-main: #ffffff;
       --text-sub: rgba(255, 255, 255, 0.55);
-      --border-color: rgba(255, 255, 255, 0.08);
+      --border-color: rgba(255, 255, 255, 0.15);
       --highlight-color: #fbbf24;
       --glow-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       
@@ -39,7 +39,7 @@
       --bg-panel: rgba(255, 255, 255, 0.9);
       --text-main: #111827;
       --text-sub: rgba(17, 24, 39, 0.6);
-      --border-color: rgba(0, 0, 0, 0.08);
+      --border-color: rgba(0, 0, 0, 0.15);
       --highlight-color: #d97706;
       --glow-shadow: 0 8px 32px rgba(31, 38, 135, 0.1);
     }
@@ -56,7 +56,10 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       overflow: hidden;
-      height: 100vh; width: 100vw;
+      /* 解決手機網址列遮擋問題，優先使用 100dvh */
+      height: 100vh;
+      height: 100dvh;
+      width: 100vw;
       user-select: none;
       transition: background-color 0.5s ease, color 0.5s ease;
     }
@@ -228,6 +231,7 @@
       margin-bottom: 10px;
     }
 
+    /* Minimalist Progress Bar */
     .progress-container {
       width: 100%; cursor: pointer; margin-bottom: 20px;
       display: flex; flex-direction: column; justify-content: center; position: relative;
@@ -237,19 +241,19 @@
       color: var(--text-sub); margin-bottom: 10px; font-variant-numeric: tabular-nums; pointer-events: none; 
     }
     .progress-track { 
-      width: 100%; height: 6px; background: var(--border-color); border-radius: 4px; 
+      width: 100%; height: 4px; background: var(--border-color); border-radius: 2px; 
       position: relative; transition: height 0.2s;
     }
-    .progress-container:hover .progress-track { height: 8px; }
+    .progress-container:hover .progress-track { height: 6px; }
     .progress-fill { 
-      height: 100%; width: 0%; background: var(--accent-gradient); 
-      border-radius: 4px; box-shadow: 0 0 15px var(--accent-color); pointer-events: none;
+      height: 100%; width: 0%; background: var(--text-main); 
+      border-radius: 2px; pointer-events: none;
       position: relative;
     }
     .progress-thumb {
       position: absolute; right: -6px; top: 50%; transform: translateY(-50%) scale(0);
-      width: 12px; height: 12px; background: #fff; border-radius: 50%;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3); transition: transform 0.2s; pointer-events: none;
+      width: 12px; height: 12px; background: var(--text-main); border-radius: 50%;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; pointer-events: none;
     }
     .progress-container:hover .progress-thumb { transform: translateY(-50%) scale(1); }
 
@@ -264,7 +268,7 @@
     }
     .icon-btn svg { width: 22px; height: 22px; }
     .icon-btn:hover { opacity: 1; background: var(--bg-glass-hover); transform: scale(1.1); }
-    .icon-btn.active { color: var(--accent-color); opacity: 1; text-shadow: 0 0 15px rgba(59,130,246,0.5); }
+    .icon-btn.active { color: var(--text-main); opacity: 1; }
     
     .btn-play {
       width: 68px; height: 68px; border-radius: 50%; border: none;
@@ -279,7 +283,7 @@
     .side-ctrls { width: 260px; display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
     .side-ctrls.left { justify-content: flex-start; }
     
-    /* 改良版超長音量條 */
+    /* Minimalist Volume Bar */
     .vol-wrap { 
       display: flex; align-items: center; gap: 12px; width: 220px; margin-right: 15px; 
       transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); 
@@ -288,19 +292,19 @@
     .vol-wrap svg { width: 18px; height: 18px; opacity: 0.7; }
     
     input[type=range] {
-      -webkit-appearance: none; width: 100%; height: 6px;
-      background: linear-gradient(to right, var(--accent-color) var(--vol-pct, 100%), var(--border-color) var(--vol-pct, 100%)); 
-      border-radius: 3px; outline: none; transition: height 0.2s;
+      -webkit-appearance: none; width: 100%; height: 4px;
+      background: linear-gradient(to right, var(--text-main) var(--vol-pct, 100%), var(--border-color) var(--vol-pct, 100%)); 
+      border-radius: 2px; outline: none; transition: height 0.2s;
     }
-    input[type=range]:hover { height: 8px; }
+    input[type=range]:hover { height: 6px; }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 16px; height: 16px;
-      border-radius: 50%; background: #ffffff; cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.5); transition: transform 0.2s;
+      -webkit-appearance: none; width: 14px; height: 14px;
+      border-radius: 50%; background: var(--text-main); cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s;
     }
-    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.3); }
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-    /* Custom Context Menu (動態生成) */
+    /* Custom Context Menu */
     .context-menu {
       position: fixed; top: 0; left: 0; min-width: 240px;
       padding: 8px; border-radius: 16px; z-index: 9999;
@@ -317,7 +321,7 @@
       cursor: pointer; border-radius: 10px; font-size: 0.95rem; font-weight: 500;
       color: var(--text-main); transition: background 0.2s, color 0.2s;
     }
-    .context-item:hover { background: var(--bg-glass-hover); color: var(--accent-color); }
+    .context-item:hover { background: var(--bg-glass-hover); color: var(--text-main); }
     .context-item svg { width: 18px; height: 18px; opacity: 0.8; }
     .context-divider { height: 1px; background: var(--border-color); margin: 6px 0; }
 
@@ -371,7 +375,7 @@
       color: var(--text-sub); cursor: pointer; font-weight: 600; font-size: 1rem;
       border-bottom: 2px solid transparent; transition: all 0.2s;
     }
-    .tab-btn.active { color: var(--accent-color); border-bottom-color: var(--accent-color); }
+    .tab-btn.active { color: var(--text-main); border-bottom-color: var(--text-main); }
     
     .list-content { flex: 1; overflow-y: auto; padding: 12px; }
     .list-content::-webkit-scrollbar { width: 6px; }
@@ -383,7 +387,7 @@
       transition: background 0.2s; position: relative;
     }
     .track-item:hover { background: var(--bg-glass-hover); }
-    .track-item.active { background: rgba(59,130,246,0.15); border-left: 4px solid var(--accent-color); }
+    .track-item.active { background: var(--bg-glass-hover); border-left: 4px solid var(--text-main); }
     
     .item-info { margin-left: 12px; flex: 1; overflow: hidden; }
     .item-title { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -395,16 +399,16 @@
 
     .search-wrap { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; gap: 10px; }
     .search-btn { 
-      background: var(--accent-gradient); color: white; border: none; border-radius: 8px;
+      background: var(--text-main); color: var(--bg-color); border: none; border-radius: 8px;
       padding: 0 16px; font-weight: 600; cursor: pointer;
     }
 
     .drawer-footer { padding: 16px; border-top: 1px solid var(--border-color); display: flex; gap: 12px; }
     .btn-solid {
       flex: 1; padding: 14px; border: none; border-radius: 12px;
-      background: var(--accent-gradient); color: #fff; font-weight: 600; font-size: 1rem;
+      background: var(--text-main); color: var(--bg-color); font-weight: 600; font-size: 1rem;
       cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-      transition: transform 0.2s, opacity 0.2s; box-shadow: 0 4px 15px rgba(59,130,246,0.3);
+      transition: transform 0.2s, opacity 0.2s; 
     }
     .btn-solid:hover { transform: translateY(-2px); opacity: 0.9; }
     .btn-outline {
@@ -434,7 +438,7 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.4); animation: fadeUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
       display: flex; align-items: center; gap: 10px; backdrop-filter: blur(20px);
     }
-    .toast svg { width: 18px; height: 18px; color: var(--accent-color); }
+    .toast svg { width: 18px; height: 18px; color: var(--text-main); }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
     /* Toggle Switch */
@@ -443,10 +447,11 @@
     .slider { position: absolute; cursor: pointer; inset: 0; background-color: rgba(255,255,255,0.2); transition: .4s; border-radius: 24px; }
     [data-theme="light"] .slider { background-color: rgba(0,0,0,0.2); }
     .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--accent-color); }
+    input:checked + .slider { background-color: var(--text-main); }
+    [data-theme="light"] input:checked + .slider:before { background-color: var(--bg-color); }
     input:checked + .slider:before { transform: translateX(20px); }
 
-    /* Responsive */
+    /* Responsive (Tablets) */
     @media (max-width: 900px) {
       .app-container { grid-template-columns: 1fr; grid-template-rows: 40% 1fr auto; padding: 20px; gap: 20px; }
       .visual-area { justify-content: flex-end; }
@@ -455,22 +460,93 @@
       .side-ctrls { width: auto; }
     }
 
-    @media (max-width: 600px) {
-      .app-container { padding: 15px; grid-template-rows: 35vh 1fr auto; gap: 15px; }
-      .album-comp { width: 200px; height: 200px; margin-bottom: 15px; }
-      .track-title { font-size: 1.6rem; }
-      .track-artist { font-size: 1rem; }
-      .lyric-line { font-size: 1.05rem; padding: 10px 0; }
-      .lyric-line.active { font-size: 1.4rem; }
+    /* --- 完美還原手機版截圖佈局 (Mobile Layout) --- */
+    @media (max-width: 768px) {
+      .app-container { 
+        display: flex; 
+        flex-direction: column; 
+        padding: 20px 20px 40px 20px; 
+        padding-top: 80px; /* 給右上角按鈕預留空間 */
+        height: 100vh;
+        height: 100dvh; /* 動態視窗高度，避開網址列 */
+        justify-content: flex-end; /* 將控制器壓在底部 */
+      }
       
-      .bottom-dock { padding: 20px 15px; border-radius: 24px; margin-bottom: 0; }
-      .controls-row { flex-direction: column; gap: 20px; }
-      .side-ctrls.left { display: none; }
-      .main-ctrls { width: 100%; justify-content: space-between; gap: 0; }
-      .side-ctrls.right { width: 100%; justify-content: center; gap: 40px; }
-      .vol-wrap { display: none; }
-      .btn-play { width: 64px; height: 64px; }
-      .btn-play svg { width: 28px; height: 28px; }
+      .visual-area { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        width: 100%;
+      }
+      
+      /* 將標題移至最上方對齊左側 */
+      .track-info { 
+        order: -1; 
+        text-align: left; 
+        margin-bottom: 4vh; 
+        padding: 0; 
+        width: 100%; 
+      }
+      .track-title { font-size: 2.2rem; margin-bottom: 8px; }
+      .track-artist { font-size: 1.1rem; }
+      
+      /* 中間方形大封面 */
+      .album-comp { 
+        width: 100%; 
+        max-width: 360px; 
+        height: auto; 
+        aspect-ratio: 1 / 1; 
+        margin: 0 auto 5vh auto; 
+      }
+      .vinyl-disk { display: none !important; } /* 隱藏旋轉黑膠，只留方形封面 */
+      .album-glow { display: none; } /* 簡化手機渲染 */
+      .album-cover { 
+        position: static; 
+        border-radius: 12px; 
+        width: 100%; 
+        height: 100%; 
+        box-shadow: 0 15px 40px rgba(0,0,0,0.4); 
+      }
+      
+      /* 手機版暫時隱藏歌詞，保持乾淨播放器介面 */
+      .lyrics-area { display: none; }
+      
+      /* 底部控制列打平 (Flatten Grid) */
+      .bottom-dock { 
+        padding: 0; 
+        margin-bottom: 20px; 
+        background: transparent; border: none; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+        display: grid; 
+        grid-template-columns: 1fr 1fr 1fr; 
+        grid-template-rows: auto auto auto; 
+        gap: 25px 0;
+      }
+      /* 使用 display: contents 讓內部按鈕直接參與網格排版 */
+      .controls-row, .main-ctrls, .side-ctrls { display: contents; }
+      .vol-wrap, .side-ctrls.left { display: none; }
+      
+      /* 第 1 橫列: 進度條 */
+      .progress-container { grid-column: 1 / -1; grid-row: 1; margin-bottom: 0; }
+      .time-row { margin-bottom: 12px; }
+      
+      /* 第 2 橫列: 循環、隨機(代替愛心位置)、歌單 */
+      #loopBtn { grid-column: 1; grid-row: 2; justify-self: start; }
+      #shuffleBtn { grid-column: 2; grid-row: 2; justify-self: center; }
+      #listBtn { grid-column: 3; grid-row: 2; justify-self: end; }
+      
+      /* 第 3 橫列: 上一首、播放、下一首 */
+      #prevBtn { grid-column: 1; grid-row: 3; justify-self: center; }
+      #playBtn { grid-column: 2; grid-row: 3; justify-self: center; }
+      #nextBtn { grid-column: 3; grid-row: 3; justify-self: center; }
+
+      .btn-play { width: 72px; height: 72px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+      .btn-play svg { width: 32px; height: 32px; }
+
+      /* 右上角絕對定位按鈕 (搜尋與設定) */
+      #searchBtn, #settingsBtn { position: absolute; top: 20px; z-index: 100; opacity: 0.8; }
+      #searchBtn { right: 70px; }
+      #settingsBtn { right: 20px; }
     }
   </style>
 </head>
@@ -489,7 +565,7 @@
             <path d="M12 2v20"></path>
           </svg>
           <div class="hero-title">將音樂拖放至此</div>
-          <div class="hero-sub">支援 MP3, FLAC, WAV<br>或使用右下角搜尋網路圖庫</div>
+          <div class="hero-sub">支援 MP3, FLAC, WAV<br>或使用右上角搜尋網路圖庫</div>
       </div>
   </div>
 
@@ -526,6 +602,7 @@
         <div class="controls-row">
             <div class="side-ctrls left"></div>
 
+            <!-- DOM 結構稍微調整讓桌面與手機共用 -->
             <div class="main-ctrls">
                 <button class="icon-btn" id="loopBtn" title="循環模式">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>
@@ -551,14 +628,15 @@
                     </div>
                     <input type="range" id="volSlider" min="0" max="1" step="0.05" value="1">
                 </div>
+                <!-- listBtn 移到這裡與其它功能並排 (但在手機版會被 grid 強制重新排列) -->
+                <button class="icon-btn" id="listBtn" title="播放清單">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                </button>
                 <button class="icon-btn" id="searchBtn" title="搜尋歌曲">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </button>
                 <button class="icon-btn" id="settingsBtn" title="設定">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
-                </button>
-                <button class="icon-btn" id="listBtn" title="播放清單">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
                 </button>
             </div>
         </div>
@@ -644,7 +722,7 @@
       </div>
       <div class="list-content" id="searchResults">
           <div style="text-align:center; color:var(--text-sub); margin-top:40px;">
-             探索網路免費圖庫<br><small style="opacity:0.5; margin-top:10px; display:block;">來源: gequhai (需 CORS Proxy)</small>
+              探索網路免費圖庫<br><small style="opacity:0.5; margin-top:10px; display:block;">來源: gequhai (需 CORS Proxy)</small>
           </div>
       </div>
   </div>
@@ -705,7 +783,7 @@
               <div class="setting-row">
                   <span style="font-size: 0.85rem; color: var(--text-sub); line-height:1.5;">永久刪除所有儲存的歌曲、歌單、快取與設定。此動作無法復原。</span>
               </div>
-              <button class="btn-solid" id="wipeDbBtn" style="background:#ef4444; width:100%; box-shadow:0 4px 15px rgba(239,68,68,0.3);">
+              <button class="btn-solid" id="wipeDbBtn" style="background:#ef4444; color:#fff; width:100%; box-shadow:0 4px 15px rgba(239,68,68,0.3);">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> 抹除所有資料
               </button>
           </div>
@@ -1230,11 +1308,22 @@
         const seek = (e) => {
             if(!audio.duration) return;
             const rect = progContainer.getBoundingClientRect();
-            const pos = (e.clientX - rect.left) / rect.width;
+            // 處理滑鼠與觸控事件的 X 座標
+            let clientX = e.clientX;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+            } else if (e.changedTouches && e.changedTouches.length > 0) {
+                clientX = e.changedTouches[0].clientX;
+            }
+            const pos = (clientX - rect.left) / rect.width;
             audio.currentTime = Math.max(0, Math.min(1, pos)) * audio.duration;
             updateVisuals();
         };
+
+        // 滑鼠與觸控事件支援 (Touch support for progress bar)
         progContainer.addEventListener('mousedown', (e) => { isDragging = true; seek(e); });
+        progContainer.addEventListener('touchstart', (e) => { isDragging = true; seek(e); }, {passive: true});
+
         window.addEventListener('mousemove', (e) => { 
             if(isDragging) {
                  const rect = progContainer.getBoundingClientRect();
@@ -1243,7 +1332,20 @@
                  $('currTime').textContent = fmtTime(pct * audio.duration);
             }
         });
+        
+        window.addEventListener('touchmove', (e) => { 
+            if(isDragging) {
+                 e.preventDefault(); // 防止滑動進度條時誤觸網頁捲動或下拉重整
+                 const rect = progContainer.getBoundingClientRect();
+                 const clientX = e.touches[0].clientX;
+                 const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+                 $('progressFill').style.width = `${pct * 100}%`;
+                 $('currTime').textContent = fmtTime(pct * audio.duration);
+            }
+        }, {passive: false});
+
         window.addEventListener('mouseup', (e) => { if(isDragging) { seek(e); isDragging = false; } });
+        window.addEventListener('touchend', (e) => { if(isDragging) { seek(e); isDragging = false; } });
 
         const heroUpload = $('heroUpload');
         const fileInput = $('fileInput');
@@ -1251,7 +1353,7 @@
 
         heroUpload.addEventListener('click', () => fileInput.click());
         $('addBtn').addEventListener('click', () => fileInput.click());
-        heroUpload.addEventListener('dragover', (e) => { e.preventDefault(); heroUpload.style.borderColor = 'var(--accent-color)'; heroUpload.style.background = 'var(--bg-glass-hover)'; });
+        heroUpload.addEventListener('dragover', (e) => { e.preventDefault(); heroUpload.style.borderColor = 'var(--text-main)'; heroUpload.style.background = 'var(--bg-glass-hover)'; });
         heroUpload.addEventListener('dragleave', () => { heroUpload.style.borderColor = 'var(--border-color)'; heroUpload.style.background = 'rgba(255,255,255,0.02)'; });
         heroUpload.addEventListener('drop', (e) => {
             e.preventDefault();
@@ -1774,7 +1876,7 @@
                     <div class="item-title">${escapeHTML(track.title)}</div>
                     <div class="item-artist">${escapeHTML(track.artist)}</div>
                 </div>
-                ${idx === currentIndex ? '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2" width="18" height="18" style="margin-right:10px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>' : ''}
+                ${idx === currentIndex ? '<svg viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" stroke-width="2" width="18" height="18" style="margin-right:10px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>' : ''}
                 <div class="action-icon danger delete-btn">${icons.trash}</div>
             `;
 
@@ -1785,7 +1887,7 @@
 
             item.addEventListener('dragstart', (e) => { draggedItem = idx; e.dataTransfer.effectAllowed = 'move'; item.style.opacity = '0.5'; });
             item.addEventListener('dragend', () => { item.style.opacity = '1'; draggedItem = null; document.querySelectorAll('.track-item').forEach(i => i.style.borderTop = 'none'); });
-            item.addEventListener('dragover', (e) => { e.preventDefault(); item.style.borderTop = '2px solid var(--accent-color)'; });
+            item.addEventListener('dragover', (e) => { e.preventDefault(); item.style.borderTop = '2px solid var(--text-main)'; });
             item.addEventListener('drop', (e) => { e.preventDefault(); if(draggedItem !== null && draggedItem !== idx) moveTrack(draggedItem, idx); });
             list.appendChild(item);
         });
@@ -1822,7 +1924,7 @@
             div.dataset.trackIds = JSON.stringify(list.trackIds);
             
             div.innerHTML = `
-                <div class="action-icon" style="opacity:1"><svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-color)" stroke-width="2" width="20" height="20"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></div>
+                <div class="action-icon" style="opacity:1"><svg viewBox="0 0 24 24" fill="none" stroke="var(--text-main)" stroke-width="2" width="20" height="20"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg></div>
                 <div class="item-info">
                     <div class="item-title">${escapeHTML(list.name)}</div>
                     <div class="item-artist">${list.trackIds.length} 首歌曲</div>
